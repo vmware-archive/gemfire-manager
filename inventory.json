@@ -1,0 +1,58 @@
+{
+   "locator": {
+      "names": [], 
+      "region": "nyc3", 
+      "private_network_interfaces": {
+         "ipv4": "10.132.128.32"
+      }, 
+      "public_network_interfaces": {
+         "ipv4": "159.203.139.2", 
+         "ipv6": "2604:a880:0800:0010:0000:0000:018f:7001"
+      }, 
+      "backups": false, 
+      "image": "debian-7-0-x64", 
+      "size": "1gb"
+   }, 
+   "datanode1": {
+      "names": [], 
+      "region": "nyc3", 
+      "private_network_interfaces": {
+         "ipv4": "10.132.129.39"
+      }, 
+      "public_network_interfaces": {
+         "ipv4": "159.203.135.54", 
+         "ipv6": "2604:a880:0800:0010:0000:0000:01c9:d001"
+      }, 
+      "backups": false, 
+      "image": "debian-7-0-x64", 
+      "size": "1gb"
+   }, 
+   "datanode3": {
+      "names": [], 
+      "region": "nyc3", 
+      "private_network_interfaces": {
+         "ipv4": "10.132.130.46"
+      }, 
+      "public_network_interfaces": {
+         "ipv4": "159.203.132.192", 
+         "ipv6": "2604:a880:0800:0010:0000:0000:01ca:b001"
+      }, 
+      "backups": false, 
+      "image": "debian-7-0-x64", 
+      "size": "1gb"
+   }, 
+   "datanode2": {
+      "names": [], 
+      "region": "nyc3", 
+      "private_network_interfaces": {
+         "ipv4": "10.132.131.53"
+      }, 
+      "public_network_interfaces": {
+         "ipv4": "159.203.138.213", 
+         "ipv6": "2604:a880:0800:0010:0000:0000:01d1:7001"
+      }, 
+      "backups": false, 
+      "image": "debian-7-0-x64", 
+      "size": "1gb"
+   }
+}

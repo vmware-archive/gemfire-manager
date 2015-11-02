@@ -1,0 +1,26 @@
+{
+    "locator" : {
+          "region" : "nyc3"
+        , "size" : "1gb"
+        , "image" :  "debian-7-0-x64"
+        , "backups" : false
+    }
+    ,"datanode1" : {
+          "region" : "nyc3"
+        , "size" : "1gb"
+        , "image" :  "debian-7-0-x64"
+        , "backups" : false
+    }
+    ,"datanode2" : {
+          "region" : "nyc3"
+        , "size" : "1gb"
+        , "image" :  "debian-7-0-x64"
+        , "backups" : false
+    }
+    ,"datanode3" : {
+          "region" : "nyc3"
+        , "size" : "1gb"
+        , "image" :  "debian-7-0-x64"
+        , "backups" : false
+    }
+}

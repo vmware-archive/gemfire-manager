@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://schema.pivotal.io/gemfire/cache"
+	xsi:schemaLocation="http://schema.pivotal.io/gemfire/cache http://schema.pivotal.io/gemfire/cache/cache-8.1.xsd"
+	version="8.1" is-server="true">
+	<gateway-sender id="wfnEmployees_SENDER"
+		remote-distributed-system-id="${REMOTE_DISTRIBUTED_SYSTEM_ID}" parallel="true" enable-persistence="true"
+		disk-store-name="adp-gateway-store" dispatcher-threads="1" />
+	<gateway-sender id="testRegionP_SENDER"
+		remote-distributed-system-id="${REMOTE_DISTRIBUTED_SYSTEM_ID}" parallel="true" enable-persistence="true"
+		disk-store-name="adp-gateway-store" dispatcher-threads="1" />
+	<gateway-sender id="wfnWFViewPublicFilters_SENDER"
+		remote-distributed-system-id="${REMOTE_DISTRIBUTED_SYSTEM_ID}" parallel="true" enable-persistence="true"
+		disk-store-name="adp-gateway-store" dispatcher-threads="1" />
+	<gateway-sender id="DC2" remote-distributed-system-id="${REMOTE_DISTRIBUTED_SYSTEM_ID}"
+		enable-persistence="true" disk-store-name="adp-gateway-store"
+		dispatcher-threads="1" />
+	<gateway-sender id="wfnVpdOrgMapping_SENDER"
+		remote-distributed-system-id="${REMOTE_DISTRIBUTED_SYSTEM_ID}" parallel="true" enable-persistence="true"
+		disk-store-name="adp-gateway-store" dispatcher-threads="1" />
+	<gateway-sender id="wfnEeDeductions_SENDER"
+		remote-distributed-system-id="${REMOTE_DISTRIBUTED_SYSTEM_ID}" parallel="true" enable-persistence="true"
+		disk-store-name="adp-gateway-store" dispatcher-threads="1" />
+	<gateway-sender id="wfnFeatures_SENDER"
+		remote-distributed-system-id="${REMOTE_DISTRIBUTED_SYSTEM_ID}" parallel="true" enable-persistence="true"
+		disk-store-name="adp-gateway-store" dispatcher-threads="1" />
+	<gateway-sender id="wfnClientInfo_SENDER"
+		remote-distributed-system-id="${REMOTE_DISTRIBUTED_SYSTEM_ID}" parallel="true" enable-persistence="true"
+		disk-store-name="adp-gateway-store" dispatcher-threads="1" />
+	<gateway-sender id="currentPayPeriod_SENDER"
+		remote-distributed-system-id="${REMOTE_DISTRIBUTED_SYSTEM_ID}" parallel="true" enable-persistence="true"
+		disk-store-name="adp-gateway-store" dispatcher-threads="1" />
+	<gateway-sender id="wfnEmployer_SENDER"
+		remote-distributed-system-id="${REMOTE_DISTRIBUTED_SYSTEM_ID}" parallel="true" enable-persistence="true"
+		disk-store-name="adp-gateway-store" dispatcher-threads="1" />
+	<gateway-sender id="wfnUserWFView_SENDER"
+		remote-distributed-system-id="${REMOTE_DISTRIBUTED_SYSTEM_ID}" parallel="true" enable-persistence="true"
+		disk-store-name="adp-gateway-store" dispatcher-threads="1" />
+	<gateway-receiver start-port="${GATEWAY_RECEIVER_START_PORT}" end-port="${GATEWAY_RECEIVER_END_PORT}" />
+	
+	<cache-server port="${CACHE_SERVER_PORT}" bind-address="${CACHE_SERVER_BIND_ADDRESS}" />
+	
+	<disk-store name="adp-gemfire-store">
+		<disk-dirs>
+			<disk-dir>data</disk-dir>
+		</disk-dirs>
+	</disk-store>
+	<disk-store name="adp-pdx-store" max-oplog-size="64">
+		<disk-dirs>
+			<disk-dir>pdx</disk-dir>
+		</disk-dirs>
+	</disk-store>
+	<disk-store name="adp-gateway-store">
+		<disk-dirs>
+			<disk-dir>gateway</disk-dir>
+		</disk-dirs>
+	</disk-store>
+	<disk-store name="adp-security-store" max-oplog-size="16">
+		<disk-dirs>
+			<disk-dir>security</disk-dir>
+		</disk-dirs>
+	</disk-store>
+	<pdx read-serialized="true" persistent="true" disk-store-name="adp-pdx-store" />
+	<region name="__gemusers">
+		<region-attributes scope="distributed-ack"
+			enable-gateway="true" data-policy="persistent-replicate"
+			statistics-enabled="true" disk-store-name="adp-security-store"
+			gateway-sender-ids="DC2">
+			<cache-loader>
+				<class-name>com.adp.gemfire.security.DeclaredUserCacheLoader</class-name>
+				<parameter name="users">
+					<string>gatewayNA pWu9206feTju0Mi6pQ9tThthHT4 secadmin design read write| admin 1b2Cyi3+MhQLLtgRxpYX1sPC9zU= secadmin</string>
+				</parameter>
+			</cache-loader>
+		</region-attributes>
+	</region>
+	<region name="currentPayPeriod">
+		<region-attributes enable-gateway="true"
+			data-policy="persistent-partition" statistics-enabled="true"
+			disk-store-name="adp-gemfire-store" gateway-sender-ids="currentPayPeriod_SENDER">
+			<partition-attributes redundant-copies="1" />
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk" />
+			</eviction-attributes>
+		</region-attributes>
+	</region>
+	<region name="testRegionP">
+		<region-attributes enable-gateway="true"
+			data-policy="persistent-partition" statistics-enabled="true"
+			disk-store-name="adp-gemfire-store" gateway-sender-ids="testRegionP_SENDER">
+			<partition-attributes redundant-copies="1" />
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk" />
+			</eviction-attributes>
+		</region-attributes>
+	</region>
+	<region name="testRegionR">
+		<region-attributes scope="distributed-ack"
+			enable-gateway="true" data-policy="persistent-replicate"
+			statistics-enabled="true" disk-store-name="adp-gemfire-store"
+			gateway-sender-ids="DC2">
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk" />
+			</eviction-attributes>
+		</region-attributes>
+	</region>
+	<region name="wfnClientInfo">
+		<region-attributes enable-gateway="true"
+			data-policy="persistent-partition" statistics-enabled="true"
+			disk-store-name="adp-gemfire-store" gateway-sender-ids="wfnClientInfo_SENDER">
+			<partition-attributes redundant-copies="1" />
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk" />
+			</eviction-attributes>
+		</region-attributes>
+	</region>
+	<region name="wfnEeDeductions">
+		<region-attributes enable-gateway="true"
+			data-policy="persistent-partition" statistics-enabled="true"
+			disk-store-name="adp-gemfire-store" gateway-sender-ids="wfnEeDeductions_SENDER">
+			<partition-attributes redundant-copies="1" />
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk" />
+			</eviction-attributes>
+		</region-attributes>
+	</region>
+	<region name="wfnEmployees">
+		<region-attributes enable-gateway="true"
+			data-policy="persistent-partition" statistics-enabled="true"
+			disk-store-name="adp-gemfire-store" gateway-sender-ids="wfnEmployees_SENDER">
+			<partition-attributes redundant-copies="1" />
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk" />
+			</eviction-attributes>
+		</region-attributes>
+	</region>
+	<region name="wfnEmployer">
+		<region-attributes enable-gateway="true"
+			data-policy="persistent-partition" statistics-enabled="true"
+			disk-store-name="adp-gemfire-store" gateway-sender-ids="wfnEmployer_SENDER">
+			<partition-attributes redundant-copies="1" />
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk" />
+			</eviction-attributes>
+		</region-attributes>
+	</region>
+	<region name="wfnFeatures">
+		<region-attributes enable-gateway="true"
+			data-policy="persistent-partition" statistics-enabled="true"
+			disk-store-name="adp-gemfire-store" gateway-sender-ids="wfnFeatures_SENDER">
+			<partition-attributes redundant-copies="1" />
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk" />
+			</eviction-attributes>
+		</region-attributes>
+	</region>
+	<region name="wfnMaintenance">
+		<region-attributes enable-gateway="true"
+			data-policy="persistent-replicate" statistics-enabled="true"
+			disk-store-name="adp-gemfire-store" gateway-sender-ids="wfnMaintenance_SENDER">
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk" />
+			</eviction-attributes>
+		</region-attributes>
+	</region>
+	<region name="wfnUserWFView">
+		<region-attributes enable-gateway="true"
+			data-policy="persistent-partition" statistics-enabled="true"
+			disk-store-name="adp-gemfire-store" gateway-sender-ids="wfnUserWFView_SENDER">
+			<partition-attributes redundant-copies="1" />
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk" />
+			</eviction-attributes>
+		</region-attributes>
+	</region>
+	<region name="wfnVpdOrgMapping">
+		<region-attributes enable-gateway="true"
+			data-policy="persistent-partition" statistics-enabled="true"
+			disk-store-name="adp-gemfire-store" gateway-sender-ids="wfnVpdOrgMapping_SENDER">
+			<partition-attributes redundant-copies="1" />
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk" />
+			</eviction-attributes>
+		</region-attributes>
+	</region>
+	<region name="wfnWFViewPublicFilters">
+		<region-attributes enable-gateway="true"
+			data-policy="persistent-partition" statistics-enabled="true"
+			disk-store-name="adp-gemfire-store" gateway-sender-ids="wfnWFViewPublicFilters_SENDER">
+			<partition-attributes redundant-copies="1" />
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk" />
+			</eviction-attributes>
+		</region-attributes>
+	</region>
+	<function-service>
+		<function>
+			<class-name>io.pivotal.gemfire_addon.tools.server.Trace</class-name>
+		</function>
+		<function>
+			<class-name>io.pivotal.gemfire_addon.tools.server.Untrace</class-name>
+		</function>
+		<function>
+			<class-name>io.pivotal.gemfire_addon.tools.server.Touch</class-name>
+		</function>
+	</function-service>
+	<resource-manager critical-heap-percentage="90"
+		eviction-heap-percentage="80" />
+</cache>

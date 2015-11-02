@@ -1,0 +1,66 @@
+{
+    "global-properties":{
+        "gemfire": "/Users/rmay/Pivotal/software/Pivotal_GemFire_8107_b060915_Linux",
+        "java-home" : "/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home",
+        "locators" : "Randy-May-MacBook-Pro.local[20000]",
+        "cluster-home" : "/Users/rmay/ADP/gateway-hang/cluster-b",
+        "distributed-system-id" : 2,
+        "REMOTE_DISTRIBUTED_SYSTEM_ID" : 1,
+        "classpath": "/Users/rmay/ADP/gateway-hang/gemfire-cluster-control/lib/*",
+        "remote-locators":"Randy-May-MacBook-Pro.local[10000]",
+        "gemfire.security-peer-auth-init": "com.adp.gemfire.security.KeystoreAuthInit.create",
+        "gemfire.security-peer-authenticator" : "com.adp.gemfire.security.KeystoreAuthenticator.create",
+        "gemfire.security-keystore-path" : "/Users/rmay/ADP/gateway-hang/gemfire-cluster-control/config/test_server.jks", 
+        "gemfire.security-key-alias" : "test",
+        "gemfire.mcast-port" : 0
+    },
+   "locator-properties" : {
+        "bind-address" : "en0",
+        "port" : 20000,
+        "jmx-manager-port" : 21099,
+        "http-service-port" : 27070,
+        "jvm-options" : ["-Xmx1g","-Xms1g", "-XX:+UseConcMarkSweepGC"],
+        "gemfire.enable-cluster-configuration" : false
+    },
+   "datanode-properties" : {
+        "bind-address" : "en0",
+        "server-bind-address" : "en0",
+        "CACHE_SERVER_BIND_ADDRESS" : "Randy-May-MacBook-Pro.local",
+        "conserve-sockets" : false,
+        "jvm-options" : ["-Xmx2g","-Xms2g","-XX:+UseConcMarkSweepGC", "-XX:CMSInitiatingOccupancyFraction=85"],
+        "cache-xml-file" : "/Users/rmay/ADP/gateway-hang/gemfire-cluster-control/config/wfn-cache.xml",
+        "statistic-sampling-enabled":"true",
+        "statistic-archive-file":"server_stats.gfs",
+        "log-file" : "server.log",
+        "GATEWAY_RECEIVER_START_PORT" : 22000,
+        "GATEWAY_RECEIVER_END_PORT" : 22999,
+        "gemfire.use-cluster-configuration" : false,
+        "gemfire.security-client-authenticator": "com.adp.gemfire.security.DummyAuthenticator.create",     
+        "gemfire.security-client-auth-init": "com.adp.gemfire.security.SecurityPropsAuthInit.create" ,
+        "gemfire.security-client-accessor" : "com.adp.gemfire.security.AccessController.create",
+        "gemfire.security-username": "gatewayNA",
+        "gemfire.security-password" : "pWu9206feTju0Mi6pQ9tThthHT4"
+    },
+    "hosts": { 
+        "Randy-May-MacBook-Pro.local" : {  
+            "host-properties" :  {
+             },
+            "processes" :  {  
+                "locator" : {
+                    "type" : "locator"
+                 },
+                 "server1" : {
+                    "type" : "datanode",
+                    "CACHE_SERVER_PORT" : 20100,
+                    "server-port": 20100
+                 },
+                 "server2" : {
+                    "type" : "datanode",
+                    "CACHE_SERVER_PORT" : 20200,
+                    "server-port": 20200
+                 }
+            }
+        }
+   }
+}
+

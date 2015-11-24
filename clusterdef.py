@@ -8,7 +8,8 @@ import socket
 #
 
 HANDLED_PROPS=['gemfire','java-home','cluster-home', 'bind-address', 'port',
-               'jvm-options','server-bind-address', 'server-port', 'classpath']
+               'jvm-options','server-bind-address', 'server-port', 'classpath',
+               'spring-xml-location']
 
 GEMFIRE_PROPS=['locators','jmx-manager-bind-address','jmx-manager-port',
                'http-service-bind-address','http-service-port',
@@ -29,7 +30,13 @@ class ClusterDef:
         return self.thisHost
         
     def isBindAddressProperty(self, propName):
-        return propName.endswith('bind-address')
+        if propName.endswith('bind-address'):
+            return True
+        
+        if propName.endswith('BIND_ADDRESS'):
+            return True
+        
+        return False
 
     
     # if addr does not contain a "." it will be treated as a network interface
@@ -111,10 +118,10 @@ class ClusterDef:
     # this method assumes that it is not passed handled props or
     # jvm props
     def gfshArg(self, key, val):
-        if key in gemprops.GEMFIRE_PROPS:
-            if self.isBindAddressProperty(key):
-                val = self.translateBindAddress(val)
+        if self.isBindAddressProperty(key):
+            val = self.translateBindAddress(val)
             
+        if key in gemprops.GEMFIRE_PROPS:
             return '--J=-Dgemfire.{0}={1}'.format(key,val)
 
         else:

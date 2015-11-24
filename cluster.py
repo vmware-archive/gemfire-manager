@@ -188,6 +188,9 @@ def startServerCommandLine(processName):
 	#these are optional
 	if clusterDef.hasDatanodeProperty(processName,'classpath'):
 		cmdLine.append('--classpath={0}'.format(clusterDef.datanodeProperty(processName, 'classpath')))
+		
+	if clusterDef.hasDatanodeProperty(processName,'spring-xml-location'):
+		cmdLine.append('--spring-xml-location={0}'.format(clusterDef.datanodeProperty(processName,'spring-xml-location')))
 	
 	#all the rest are passed through as -Ds. Those recognized as gemfire properties
 	#are prefixed with "gemfire."

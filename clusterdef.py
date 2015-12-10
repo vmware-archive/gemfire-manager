@@ -2,22 +2,6 @@ import gemprops
 import netifaces
 import socket
 
-#conventions
-# anything starting with "gemfire." will be passed to started processes
-# as additional options
-#
-
-HANDLED_PROPS=['gemfire','java-home','cluster-home', 'bind-address', 'port',
-               'jvm-options','server-bind-address', 'server-port', 'classpath',
-               'spring-xml-location']
-
-GEMFIRE_PROPS=['locators','jmx-manager-bind-address','jmx-manager-port',
-               'http-service-bind-address','http-service-port',
-               'conserve-sockets','cache-xml-file','distributed-system-id', 'remote-locators',
-               'statistic-sampling-enabled', 'statistic-archive-file',
-               'log-disk-space-limit', 'log-file-size-limit','log-file',
-               'archive-disk-space-limit', 'archive-file-size-limit',
-	       'tombstone-gc-threshold']
 
 class ClusterDef:
     

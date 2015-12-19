@@ -6,9 +6,11 @@ import json
 #import netifaces
 import os
 import os.path
+import re
 import socket
 import subprocess
 import sys
+import tempfile
 
 
 LOCATOR_PID_FILE="cf.gf.locator.pid"
@@ -282,17 +284,45 @@ def printUsage():
 	print('Notes:')
 	print('* all commands are idempotent')
 	
+	
+def subEnvVars(aString):
+	result = aString
+	varPattern = re.compile(r'\${(.*)}')
+	match = varPattern.search(result)
+	while match is not None:
+		envVarName = match.group(1)
+		if envVarName in os.environ:
+			result = result.replace(match.group(0), os.environ[envVarName])
+		
+		match = varPattern.search(result, match.end(0) + 1)
+		
+	return result
+
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		printUsage()
 		sys.exit(0)
-		
+	
 	clusterDefFile = sys.argv[1]
 	if not os.path.isfile(clusterDefFile):
 		sys.exit('could not find cluster definition file: ' + clusterDefFile)
 		
+	# copy the whole file to a temp file line by line doing env var
+	# substitutions along the way, then load the cluster defintion
+	# from the temp file
 	with open(clusterDefFile,'r') as f:
+		tfile = tempfile.NamedTemporaryFile(delete=False)
+		tfileName = tfile.name
+		with  tfile:
+			line = f.readline()
+			while(len(line) > 0):
+				tfile.write(subEnvVars(line))
+				line = f.readline()
+				
+	with open(tfileName,'r') as f:
 		clusterDef = clusterdef.ClusterDef(json.load(f))
+	
+	os.remove(tfileName)
 		
 	if len(sys.argv) < 3:
 		sys.exit('invalid input, please provide a command')
@@ -309,7 +339,7 @@ if __name__ == '__main__':
 	else:
 		obj = sys.argv[3]
 		
-		if clusterDef.isLocator(obj):
+		if clusterDef.isLocatorOnThisHost(obj):
 			if cmd == 'start':
 				startLocator(obj)
 			elif cmd == 'stop':
@@ -319,7 +349,7 @@ if __name__ == '__main__':
 			else:
 				sys.exit(cmd + ' is an unkown operation for locators')
 				
-		elif clusterDef.isDatanode(obj):
+		elif clusterDef.isDatanodeOnThisHost(obj):
 			if cmd == 'start':
 				startServer(obj)
 			elif cmd == 'stop':

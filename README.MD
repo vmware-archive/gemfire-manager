@@ -1,8 +1,29 @@
 #Overview#
 
-The purpose of this project is to simplify GemFire cluster management and
-provide basic cluster control functions that are not provided by GemFire
-out of the box. 
+The purpose of this project is to simplify GemFire cluster management by adding
+the cluster level functionality that GemFire users usually must write themselves
+. For example:  parallel cluster startup, rolling bounce, proper shutdown.  It
+also solves common configuration management issues by consolidating all
+configurtion to a single file which is copied to all managed machines.
+
+Each managed host must meet the following prerequisites:
+* Linux operating system
+* SSH and rsync installed
+* There must be GemFire "run as" user on the machine and that user must be
+configured for passwordless SSH
+* An appropriate java JDK (not JVM) must be installed
+* Python 2.6+
+* the "netifaces" python package (usually can be installed with
+`pip install netifaces`)
+
+It is also a convenient way to manage local clusters (in which case no SSH setup
+is required).  
+
+#Local Cluster Walk Through#
+
+
+
+
 
 
 On each host, the following directory structure is created
@@ -11,7 +32,6 @@ On each host, the following directory structure is created
 ```
     <cluster-home>
     |- gemfire
-    |- java
     |- config
     |- lib
 ```
@@ -20,8 +40,9 @@ gemfire-version or gemfire
 java-version or java-home
 
 #Pre-requisites#
-The managed machines must be linux and must support SSH and rsync.  They
-must have a user account on them for use by gemfire.
+* The managed machines must be linux and must support SSH and rsync.
+* They must have a user account on them for use by gemfire and the account must
+   be s
 
 
 Quick start

@@ -1,5 +1,6 @@
 import gemprops
 import netifaces
+import os
 import socket
 
 
@@ -27,48 +28,55 @@ class ClusterDef:
     # name and translated into an ip address using the netifaces package
     def translateBindAddress(self,addr):
         if not '.' in addr:
-            #TODO does this ever return an ipV6 address ?  Is that a problem ?
-            return netifaces.ifaddresses(addr)[netifaces.AF_INET][0]['addr']
+            if addr in netifaces.interfaces():
+                #TODO does this ever return an ipV6 address ?  Is that a problem ?
+                return netifaces.ifaddresses(addr)[netifaces.AF_INET][0]['addr']
+            else:
+                # in this case, assume it is a host name
+                return addr
         else:
             return addr
 
 
-    #TODO - maybe it would make more sense for all methods to
-    # target "this host" implicitly
     def isProcessOnThisHost(self, processName, processType):
-        if self.thisHost not in self.clusterDef['hosts']:
-            raise Exception('this host ({0}) not found in cluster definition'.format(self.thisHost))
-
-        if not processName in self.clusterDef['hosts'][self.thisHost]['processes']:
-            return False
-        
-        process = self.clusterDef['hosts'][self.thisHost]['processes'][processName]
-        return process['type'] == processType
+        result = False
+        for hostname in [self.thisHost,'localhost']:
+            if hostname in self.clusterDef['hosts']:
+                if processName in self.clusterDef['hosts'][hostname]['processes']:
+                    process = self.clusterDef['hosts'][hostname]['processes'][processName]
+                    result =  process['type'] == processType
+                    break
+                        
+        return result
         
 
     # raises an exception if a process with the given name is not defined for
     # this host
     def processProps(self, processName):
-        if self.thisHost not in self.clusterDef['hosts']:
-            raise Exception('this host ({0}) not found in cluster definition'.format(self.thisHost))
-
-        if not processName in self.clusterDef['hosts'][self.thisHost]['processes']:
-            raise Exception('{0} is not a valid process name on this host ({1})'.format(processName,self.thisHost))
+        processes = None
+        if self.thisHost in self.clusterDef['hosts']:
+            processes = self.clusterDef['hosts'][self.thisHost]['processes']
         
-        return self.clusterDef['hosts'][self.thisHost]['processes'][processName]
+        elif 'localhost' in self.clusterDef['hosts']:
+            processes = self.clusterDef['hosts']['localhost']['processes']
+            
+        else:
+            raise Exception('this host ({0}) not found in cluster definition'.format(self.thisHost))
+                    
+        return processes[processName]
 
     
     #host props are optional - if they are not defined in the file an empty
     #dictionary will be returned
     def hostProps(self):
-        if self.thisHost not in self.clusterDef['hosts']:
-            raise Exception('this host ({0}) not found in cluster definition'.format(self.thisHost))
+        result = dict()
+        if self.thisHost  in self.clusterDef['hosts']:
+            result = self.clusterDef['hosts'][self.thisHost]['host-properties']
+            
+        elif 'localhost'  in self.clusterDef['hosts']:
+            result = self.clusterDef['hosts']['localhost']['host-properties']
         
-        if 'host-properties' in self.clusterDef['hosts'][self.thisHost]:
-            return self.clusterDef['hosts'][self.thisHost]['host-properties']
-        else:
-            return dict()
-
+        return result
         
     #scope can be locator-properties, datanode-properties or global-properties
     #all are optional
@@ -76,9 +84,9 @@ class ClusterDef:
         if scope in self.clusterDef:
             return self.clusterDef[scope]
         else:
-            return dict()
+            return dict()    
 
-        
+    # this is the main method for accessing properties  
     def processProperty(self, processType, processName, propertyName):
         pProps = self.processProps(processName)
         if propertyName in pProps:
@@ -121,14 +129,13 @@ class ClusterDef:
         return result
                             
     def processesOnThisHost(self, processType):
-        if self.thisHost not in self.clusterDef['hosts']:
-            raise Exception('this host ({0}) not found in cluster definition'.format(self.thisHost))
-        
         result = []
-        for processName in self.clusterDef['hosts'][self.thisHost]['processes'].keys():
-            process = self.clusterDef['hosts'][self.thisHost]['processes'][processName]
-            if process['type'] == processType:
-                result.append(processName)
+        for hostname in [self.thisHost, 'localhost']:        
+            if hostname in self.clusterDef['hosts']:        
+                for processName in self.clusterDef['hosts'][hostname]['processes'].keys():
+                    process = self.clusterDef['hosts'][hostname]['processes'][processName]
+                    if process['type'] == processType:
+                        result.append(processName)
             
         return result
 
@@ -142,11 +149,11 @@ class ClusterDef:
         return self.processesOnThisHost('datanode')
 
 
-    def isLocator(self, processName):
+    def isLocatorOnThisHost(self, processName):
         return self.isProcessOnThisHost(processName, 'locator')
 
     
-    def isDatanode(self, processName):
+    def isDatanodeOnThisHost(self, processName):
         return self.isProcessOnThisHost(processName, 'datanode')
 
 

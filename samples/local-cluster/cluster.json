@@ -1,27 +1,26 @@
 {
     "global-properties":{
-        "gemfire": "/Users/rmay/Pivotal/software/Pivotal_GemFire_810_b50625_Linux",
-        "java-home" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home",
-        "locators" : "30.2.35.55[10000]",
-        "cluster-home" : "/Users/rmay/Pivotal/gemfire-toolkit/cluster/1"
+        "gemfire": "${GEMFIRE}",
+        "java-home" : "${JAVA_HOME}",
+        "locators" : "localhost[10000]",
+        "cluster-home" : "/tmp/gemfire"
     },
    "locator-properties" : {
-        "bind-address": "en0", 
+        "bind-address": "localhost", 
         "port" : 10000,
-        "jmx-manager-bind-address" : "en0",
         "jmx-manager-port" : 11099,
-        "http-service-bind-address" : "en0",
+        "http-service-bind-address" : "localhost",
         "http-service-port" : 17070,
-        "jvm-options" : ["-Xmx1g","-Xms1g", "-XX:+UseConcMarkSweepGC"]
+        "jvm-options" : ["-Xmx1g","-Xms1g", "-XX:+UseConcMarkSweepGC", "-XX:+UseParNewGC"]
     },
    "datanode-properties" : {
-        "bind-address" : "en0",
-        "server-bind-address" : "en0",
+        "bind-address" : "localhost",
+        "server-bind-address" : "localhost",
         "conserve-sockets" : false,
-        "jvm-options" : ["-Xmx3g","-Xms3g","-Xmn1g", "-XX:+UseConcMarkSweepGC"]
+        "jvm-options" : ["-Xmx3g","-Xms3g","-Xmn1g", "-XX:+UseConcMarkSweepGC", "-XX:+UseParNewGC", "-XX:CMSInitiatingOccupancyFraction=75"]
     },
     "hosts": { 
-        "Randy-May-MacBook-Pro.local" : {  
+        "localhost": {  
             "host-properties" :  {
              },
             "processes" :  {  

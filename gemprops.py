@@ -1,6 +1,7 @@
 
 HANDLED_PROPS=['gemfire','java-home','cluster-home', 'bind-address', 'port',
-               'jvm-options','server-bind-address', 'server-port', 'classpath']
+               'jvm-options','server-bind-address', 'server-port', 'classpath'
+               , 'hostname-for-clients']
 
 
 GEMFIRE_PROPS=[

@@ -165,6 +165,9 @@ def startLocator(processName):
 		,"--name={0}".format(processName)]
 	
 	#these are optional
+	if clusterDef.hasLocatorProperty(processName,'hostname-for-clients'):
+		cmdLine.append('--hostname-for-clients={0}'.format(clusterDef.locatorProperty(processName, 'hostname-for-clients')))
+	
 	if clusterDef.hasLocatorProperty(processName,'classpath'):
 		cmdLine.append('--classpath={0}'.format(clusterDef.locatorProperty(processName, 'classpath')))
 	

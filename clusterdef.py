@@ -52,28 +52,39 @@ class ClusterDef:
 
     # raises an exception if a process with the given name is not defined for
     # this host
-    def processProps(self, processName):
+    def processProps(self, processName, host=None):
         processes = None
-        if self.thisHost in self.clusterDef['hosts']:
-            processes = self.clusterDef['hosts'][self.thisHost]['processes']
+        if host is None:
+            thishost = self.thisHost
+        else:
+            thishost = host
+            
+        if thishost in self.clusterDef['hosts']:
+            processes = self.clusterDef['hosts'][thishost]['processes']
         
-        elif 'localhost' in self.clusterDef['hosts']:
+        elif host is None and 'localhost' in self.clusterDef['hosts']:
             processes = self.clusterDef['hosts']['localhost']['processes']
             
         else:
-            raise Exception('this host ({0}) not found in cluster definition'.format(self.thisHost))
+            raise Exception('this host ({0}) not found in cluster definition'.format(thishost))
                     
         return processes[processName]
 
     
     #host props are optional - if they are not defined in the file an empty
     #dictionary will be returned
-    def hostProps(self):
+    def hostProps(self, host = None):
         result = dict()
-        if self.thisHost  in self.clusterDef['hosts']:
-            result = self.clusterDef['hosts'][self.thisHost]['host-properties']
+        
+        if host is None:
+            thishost = self.thisHost
+        else:
+            thishost = host
+        
+        if thishost in self.clusterDef['hosts']:
+            result = self.clusterDef['hosts'][thishost]['host-properties']
             
-        elif 'localhost'  in self.clusterDef['hosts']:
+        elif host is None and 'localhost'  in self.clusterDef['hosts']:
             result = self.clusterDef['hosts']['localhost']['host-properties']
         
         return result
@@ -87,12 +98,12 @@ class ClusterDef:
             return dict()    
 
     # this is the main method for accessing properties  
-    def processProperty(self, processType, processName, propertyName):
-        pProps = self.processProps(processName)
+    def processProperty(self, processType, processName, propertyName, host = None):
+        pProps = self.processProps(processName, host = host)
         if propertyName in pProps:
             return pProps[propertyName]
         
-        hostProps = self.hostProps()
+        hostProps = self.hostProps(host = host)
         if propertyName in hostProps:
             return hostProps[propertyName]
         
@@ -157,27 +168,27 @@ class ClusterDef:
         return self.isProcessOnThisHost(processName, 'datanode')
 
 
-    def locatorProperty(self, processName, propertyName):
-        result = self.processProperty('locator',processName, propertyName)
+    def locatorProperty(self, processName, propertyName, host=None):
+        result = self.processProperty('locator',processName, propertyName, host = host)
         if self.isBindAddressProperty(propertyName):
             return self.translateBindAddress(result)
         else:
             return result
 
         
-    def datanodeProperty(self, processName, propertyName):
-        result = self.processProperty('datanode',processName, propertyName)
+    def datanodeProperty(self, processName, propertyName, host=None):
+        result = self.processProperty('datanode',processName, propertyName, host = host)
         if self.isBindAddressProperty(propertyName):
             return self.translateBindAddress(result)
         else:
             return result
         
-    def hasDatanodeProperty(self, processName, propertyName):
-        pProps = self.processProps(processName)
+    def hasDatanodeProperty(self, processName, propertyName, host = None):
+        pProps = self.processProps(processName, host = host)
         if propertyName in pProps:
             return True
         
-        hostProps = self.hostProps()
+        hostProps = self.hostProps(host = host)
         if propertyName in hostProps:
             return True
         
@@ -193,12 +204,12 @@ class ClusterDef:
 
     #TODO - extract bits common to this and hasDatanodeProperty and
     # put in shared function
-    def hasLocatorProperty(self, processName, propertyName):
-        pProps = self.processProps(processName)
+    def hasLocatorProperty(self, processName, propertyName, host = None):
+        pProps = self.processProps(processName, host = host)
         if propertyName in pProps:
             return True
         
-        hostProps = self.hostProps()
+        hostProps = self.hostProps(host = host)
         if propertyName in hostProps:
             return True
         

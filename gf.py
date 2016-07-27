@@ -67,17 +67,18 @@ def startCluster():
     # start locators first
     for hkey in clusterDef['hosts']:
         host = clusterDef['hosts'][hkey]
-        for pkey in host['processes']:
-            process = host['processes'][pkey]
-            if process['type'] == 'locator':
-                #cluster path needs to be absolute
-                clusterScriptDir = cdef.locatorProperty(pkey,'cluster-home', host = hkey)
-                if clusterScriptDir.endswith(os.pathsep):
-                    clusterScriptDir = clusterScriptDir[0:-1]
-                    
-                clusterScriptDir = os.path.dirname(clusterScriptDir)
-                clusterScript = os.path.join(clusterScriptDir,'cluster.py')
-                runRemote(host['ssh'],'python', clusterScript, 'start' , pkey)
+        if 'processes' in host:
+            for pkey in host['processes']:
+                process = host['processes'][pkey]
+                if process['type'] == 'locator':
+                    #cluster path needs to be absolute
+                    clusterScriptDir = cdef.locatorProperty(pkey,'cluster-home', host = hkey)
+                    if clusterScriptDir.endswith(os.pathsep):
+                        clusterScriptDir = clusterScriptDir[0:-1]
+                        
+                    clusterScriptDir = os.path.dirname(clusterScriptDir)
+                    clusterScript = os.path.join(clusterScriptDir,'cluster.py')
+                    runRemote(host['ssh'],'python', clusterScript, 'start' , pkey)
                 
     # now start on all servers concurrently
     launches = []

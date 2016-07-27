@@ -61,8 +61,7 @@ if __name__ == '__main__':
         if gemfire is None or javaHome is None or clusterHome is None:
             sys.exit('could not look up gemfire, java-home and cluster-home settings for host {0}'.format(hkey))
 
-        #copy the scripts and cluster.json to the parent of the cluster-home directory
-        clusterParent = os.path.dirname(clusterHome)
+        #copy the scripts and cluster.json to the cluster-home directory
         keyFile = host['ssh']['key-file']
         hostName = host['ssh']['host']
         userName = host['ssh']['user']
@@ -70,17 +69,17 @@ if __name__ == '__main__':
             sys.exit('key file {0} not found'.format(keyFile))
         
         # create the clusterParent dir on the remote host if it does not exist
-        runQuietly('scp','-o','StrictHostKeyChecking=no','-i', keyFile, os.path.join(here, 'ensuredirs.py'), '{0}@{1}:/tmp'.format(userName, hostName, clusterParent))
-        runRemote(keyFile, userName, hostName, 'python', '/tmp/ensuredirs.py', clusterParent)        
+        runQuietly('scp','-o','StrictHostKeyChecking=no','-i', keyFile, os.path.join(here, 'ensuredirs.py'), '{0}@{1}:/tmp'.format(userName, hostName))
+        runRemote(keyFile, userName, hostName, 'python', '/tmp/ensuredirs.py', clusterHome)        
         
         sources = ['cluster.py', 'clusterdef.py','gemprops.py','gf.py','cluster.json', 'installgem.py','installjava.py']
         for s in sources:
             source = os.path.join(here, s)
-            runQuietly('scp','-o','StrictHostKeyChecking=no','-i', keyFile, source, '{0}@{1}:{2}'.format(userName, hostName, clusterParent))
+            runQuietly('scp','-o','StrictHostKeyChecking=no','-i', keyFile, source, '{0}@{1}:{2}'.format(userName, hostName, clusterHome))
             
-        print 'copied cluster control scripts and cluster definition to {0} on {1}'.format(clusterParent, hkey)
+        print 'copied cluster control scripts and cluster definition to {0} on {1}'.format(clusterHome, hkey)
         
-        scripts = map(os.path.join,[clusterParent,clusterParent],['installjava.py','installgem.py'])
+        scripts = map(os.path.join,[clusterHome,clusterHome],['installjava.py','installgem.py'])
         targets = [javaHome, gemfire]
         for script,target in zip(scripts,targets):
             runRemoteQuietly(keyFile, userName, hostName, 'python', script, target)

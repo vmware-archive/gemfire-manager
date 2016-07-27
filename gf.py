@@ -73,10 +73,7 @@ def startCluster():
                 if process['type'] == 'locator':
                     #cluster path needs to be absolute
                     clusterScriptDir = cdef.locatorProperty(pkey,'cluster-home', host = hkey)
-                    if clusterScriptDir.endswith(os.pathsep):
-                        clusterScriptDir = clusterScriptDir[0:-1]
-                        
-                    clusterScriptDir = os.path.dirname(clusterScriptDir)
+
                     clusterScript = os.path.join(clusterScriptDir,'cluster.py')
                     runRemote(host['ssh'],'python', clusterScript, 'start' , pkey)
                 
@@ -90,10 +87,7 @@ def startCluster():
             if process['type'] == 'datanode':
                 #cluster path needs to be absolute
                 clusterScriptDir = cdef.datanodeProperty(pkey,'cluster-home', host = hkey)
-                if clusterScriptDir.endswith(os.pathsep):
-                    clusterScriptDir = clusterScriptDir[0:-1]
-                    
-                clusterScriptDir = os.path.dirname(clusterScriptDir)
+
                 clusterScript = os.path.join(clusterScriptDir,'cluster.py')
                 launch = launchRemote(host['ssh'],'python', clusterScript,'start')
                 launches.append(launch)
@@ -126,14 +120,9 @@ def runClusterScriptOnAnyHost(*args):
                 if process['type'] == 'locator':
                     #cluster path needs to be absolute
                     clusterScriptDir = cdef.locatorProperty(pkey,'cluster-home', host = hkey)
-                    if clusterScriptDir.endswith(os.pathsep):
-                        clusterScriptDir = clusterScriptDir[0:-1]
                 else:
                     clusterScriptDir = cdef.datanodeProperty(pkey,'cluster-home', host = hkey)
-                    if clusterScriptDir.endswith(os.pathsep):
-                        clusterScriptDir = clusterScriptDir[0:-1]
                         
-                clusterScriptDir = os.path.dirname(clusterScriptDir)
                 clusterScript = os.path.join(clusterScriptDir,'cluster.py')
                 
                 # all of that was just to get the location of the remote script
@@ -163,17 +152,13 @@ def runClusterScriptOnMemberHost(mname, *args):
                     if process['type'] == 'locator':
                         #cluster path needs to be absolute
                         clusterScriptDir = cdef.locatorProperty(pkey,'cluster-home', host = hkey)
-                        if clusterScriptDir.endswith(os.pathsep):
-                            clusterScriptDir = clusterScriptDir[0:-1]
                     else:
                         clusterScriptDir = cdef.datanodeProperty(pkey,'cluster-home', host = hkey)
-                        if clusterScriptDir.endswith(os.pathsep):
-                            clusterScriptDir = clusterScriptDir[0:-1]
+
                                                 
     if targetHost is None:
         sys.exit('no process "{0}" exists in the cluster definition'.format(mname))
         
-    clusterScriptDir = os.path.dirname(clusterScriptDir)
     clusterScript = os.path.join(clusterScriptDir,'cluster.py')
     
     print 'executing python {0} {1} on {2}'.format(clusterScript, ' '.join(args),targetHost['ssh']['host'])

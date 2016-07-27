@@ -3,7 +3,7 @@
         "gemfire": "/runtime/gemfire",
         "java-home" : "/runtime/java",
         "locators" : "10.0.0.101[10000]",
-        "cluster-home" : "/runtime/cluster1/var"
+        "cluster-home" : "/runtime/cluster1"
     },
    "locator-properties" : {
         "port" : 10000,

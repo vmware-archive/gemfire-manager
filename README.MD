@@ -69,8 +69,8 @@ The requirements are as follows:
 
 * hosts must have a gemfire installation and a JDK and the _gemfire_ and _java-home_
 properties in _cluster.json_ must point to those locations.
-* cluster scripts _cluster.py, clusterdef.py and gemprops.py_ must be placed in
-the parent directory of the cluster home directory (which is specified using the _cluster-home_ setting).
+* cluster scripts _cluster.py, clusterdef.py and gemprops.py_ must be placed in 
+the cluster home directory (which is specified using the _cluster-home_ setting).
 * All machines must have the same cluster definition file.  This file must be named
 _cluster.json_ and it must be in the same directory as the cluster scripts.
 * The cluster home directory, the cluster scripts and the cluster definition file
@@ -107,8 +107,8 @@ access the server with ssh.  The example below shows a minimal cluster.json that
 includes 2 servers.
 6. Run `python install.py` in the "mycluster" directory.  This will do the the
 following:
-    * copy cluster.json and all of the cluster control scripts into the parent
-directory of directory specified by the "cluster-home" property.  In the example
+    * copy cluster.json and all of the cluster control scripts into the directory 
+specified by the "cluster-home" property.  In the example
 below, this would be "/runtime/cluster1"
     * install gemfire 8.2 in the directory specified by the "gemfire" property
     * install a compatible Oracle 1.8 JDK in the directory specified by the
@@ -240,7 +240,7 @@ the information needed to connect to that host.
         "gemfire": "/runtime/gemfire",
         "java-home" : "/runtime/java",
         "locators" : "10.0.0.101[10000]",
-        "cluster-home" : "/runtime/cluster1/var"
+        "cluster-home" : "/runtime/cluster1"
     },
    "locator-properties" : {
         "port" : 10000,

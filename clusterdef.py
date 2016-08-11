@@ -168,6 +168,8 @@ class ClusterDef:
         return self.isProcessOnThisHost(processName, 'datanode')
 
 
+    #TODO it should not be necessary to pass the host in any case becaus the
+    #     processName implies the host
     def locatorProperty(self, processName, propertyName, host=None):
         result = self.processProperty('locator',processName, propertyName, host = host)
         if self.isBindAddressProperty(propertyName):
@@ -176,6 +178,8 @@ class ClusterDef:
             return result
 
         
+    #TODO it should not be necessary to pass the host in any case becaus the
+    #     processName implies the host
     def datanodeProperty(self, processName, propertyName, host=None):
         result = self.processProperty('datanode',processName, propertyName, host = host)
         if self.isBindAddressProperty(propertyName):
@@ -183,6 +187,8 @@ class ClusterDef:
         else:
             return result
         
+    #TODO it should not be necessary to pass the host in any case becaus the
+    #     processName implies the host
     def hasDatanodeProperty(self, processName, propertyName, host = None):
         pProps = self.processProps(processName, host = host)
         if propertyName in pProps:
@@ -204,6 +210,8 @@ class ClusterDef:
 
     #TODO - extract bits common to this and hasDatanodeProperty and
     # put in shared function
+    #TODO it should not be necessary to pass the host in any case becaus the
+    #     processName implies the host
     def hasLocatorProperty(self, processName, propertyName, host = None):
         pProps = self.processProps(processName, host = host)
         if propertyName in pProps:

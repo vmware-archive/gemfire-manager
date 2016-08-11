@@ -5,16 +5,16 @@ the cluster level functionality that GemFire users usually must write themselves
 .In a nutshell, it adds commands to:
 * start/stop a whole cluster
 * start/stop individual members (whether local or remote)
-* __manage remote members__ (e.g. start a whole cluster without logging in to each member)
-* correctly perform a rolling restart (waiting for redundancy to be established when necessary) - COMING SOON
+* prevent a user from stopping a member when it could cause data loss.
+* correctly perform a rolling restart (waiting for redundancy to be established when necessary) 
 
 #Requirements#
 
 Each managed host must meet the following prerequisites:
 * Linux or OSX operating system 
 * SSH and rsync installed (not required for local clusters)
-* The user account that GemFire will run under must be configured for
-passwordless SSH (not required for local clusters).  
+* The user account that GemFire will run under must be configured for passwordless SSH
+(not required for local clusters).  
 * An appropriate java JDK (not JVM) must be installed
 * An installation of GemFire (8.x or higher)
 * Python 2.6+
@@ -28,44 +28,41 @@ passwordless SSH (not required for local clusters).
 1. Define the GEMFIRE and JAVA_HOME environment variables to point to your
 gemfire installation and an appropriate jdk.
 2. Examine the cluster configuration file: _samples/local-cluster.json_.
+3. Copy _samples/local-cluster.json_ to _cluster.json_ in the project root directory (i.e. the
+directory where _cluster.py_ resides)
 3. If you wish to change the location used by the cluster for local storage,
-you may do so by modifying the _cluster-home_ setting.
+you may do so by modifying the _cluster-home_ setting in _cluster.json_.
 4. Start the cluster:
 ```
-    python cluster.py --cluster-def=samples/local-cluster.json start
+    python cluster.py start
 ```
 5. Verify the cluster is running by accessing pulse at: http://localhost:17070/pulse
 6. Note: the locator is listening on port 10000, the jmx-manager is on port 11099
 7. Check the status of a member:
 ```
-    python cluster.py --cluster-def=samples/local-cluster.json status server1
+    python cluster.py status server1
 ```
 Note that the member name is determined by its key in the _processes_ dictionary
 under each host.
 8. stop and start a member
 ```
-    python cluster.py --cluster-def=samples/local-cluster.json stop server2
-    python cluster.py --cluster-def=samples/local-cluster.json start server2
+    python cluster.py stop server2
+    python cluster.py start server2
 ```
 9. stop the whole cluster
 ```
-    python cluster.py --cluster-def=samples/local-cluster.json stop
+    python cluster.py stop
 ```
 Note that this does not stop locators.
 10. stop the locator
 ```
-    python cluster.py --cluster-def=samples/local-cluster.json stop locator
+    python cluster.py stop locator
 ```
     
-####Additional Notes####
-* If the _--cluster-def_ setting is ommitted, the script will look for a file
-named _cluster.json_ in the same directory as the script.
     
 # Setting Up a Remote Cluster #
 
 GemFire manager has certain requirements about how managed members are set up.
-A utility is provided to assist with this but it can also be done manually.
-The requirements are as follows:
 
 * hosts must have a gemfire installation and a JDK and the _gemfire_ and _java-home_
 properties in _cluster.json_ must point to those locations.
@@ -73,52 +70,34 @@ properties in _cluster.json_ must point to those locations.
 the cluster home directory (which is specified using the _cluster-home_ setting).
 * All machines must have the same cluster definition file.  This file must be named
 _cluster.json_ and it must be in the same directory as the cluster scripts.
-* The cluster home directory, the cluster scripts and the cluster definition file
-must be accessible by a user that has _passwordless_ ssh access to the machine.
-This should be configured by placing the administrators public key in the users
-~/.ssh/authorized_keys file.
-* The machine which will be used for admin does not have to be a cluster member
-but it must have ssh access to all cluster members.  Specifically, the admin
-machine must have the .pem file on it.
+* The machines hosting cluster members must be set up with a user who will run the
+admin commands (e.g. start and stop servers). That user must be set up for
+passwordless ssh logins
+* The admin user must have write access to the cluster-home directory and the
+configuration files and scripts it contains.
 
-To set up a cluster using the provided install script, follow these instructions:
-1. Provision or obtain access to a group of linux servers.  Ensure all of the
-servers are set up with passwordless ssh and that you have the corresponding
-".pem" file on your local machine.
-2. Review the "Requirements" section above.  Make sure all necessary packages
-have been installed. _The utility will install GemFire and Java for you so you
-can skip that part._
-2. Copy the whole gemfire-manager folder to another folder (hereafter called
-~/mycluster ) that you will use to manage this cluster. 
-3. Place you .pem file into ~/mycluster
-4. Copy the "remote-cluster.json" from the gemfire-manager/samples folder
-into the new folder.  Steps 3-5 would look something like this:
-```
-cp -r ~/gemfire-manager ~/mycluster
-cp ~/mykey.pem ~/mycluster
-cp ~/mycluster/samples/remote-cluster.json ~/mycluster/cluster.json
-```
-5. Edit mycluster/cluster.json.  At a minimum, you will need to be sure that
-the "hosts" dictionary contains an entry for each server in the cluster.  The
-key to the dictionary entry must be the server's host name as returned by the
-"hostname" command on that server.  Further, each host entry must contain
-an "ssh" entry containing the "host", "user" and "key-file" to be used when
-access the server with ssh.  The example below shows a minimal cluster.json that
-includes 2 servers.
-6. Run `python install.py` in the "mycluster" directory.  This will do the the
-following:
-    * copy cluster.json and all of the cluster control scripts into the directory 
-specified by the "cluster-home" property.  In the example
-below, this would be "/runtime/cluster1"
-    * install gemfire 8.2 in the directory specified by the "gemfire" property
-    * install a compatible Oracle 1.8 JDK in the directory specified by the
-    "java-home" property
-    
-At this point, if all goes well, you will have a gemfire cluster set up and
-ready to run.
 
-#Remote Cluster Walkthrough
-1. Complete the setup steps above.
+#Remote Cluster Walkthrough#
+This walk though takes you through setting up and starting a gemfire cluster
+with 1 locator and 3 data nodes.  You will be able to control the cluster from
+your local machine provided you have ssh access to all 4 remote machines.
+
+1. Provision or obtain access to 4 servers.  Ensure that java and gemfire have been copied
+to the same location on all for servers (the sample script assumes that java
+and gemfire are in _/runtime/java_ and _/runtime/gemfire_ respectively).
+
+2. Set up all 4 machines for passwordless ssh. You will of course need the
+private key file on your local machine.
+
+3. Create a cluster home directory in the same place on all 4 machines
+(e.g. /runtime/cluster_1)
+
+4. Copy _samples/remote-cluster.json_ to  _cluster.json_ in the project
+home directory (the directory where _cluster.py_ is).
+
+5. Edit _cluster.json_ - set the _cluster-home_,_java_home_ and _gemfire_ settings
+to the directories you chose in steps 1-3.
+ 
 2. Start the cluster.
 ```
 python gf.py start

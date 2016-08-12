@@ -12,11 +12,6 @@ the cluster level functionality that GemFire users usually must write themselves
 
 Each managed host must meet the following prerequisites:
 * Linux or OSX operating system 
-* SSH and rsync installed (not required for local clusters)
-* The user account that GemFire will run under must be configured for passwordless SSH
-(not required for local clusters).  
-* An appropriate java JDK (not JVM) must be installed
-* An installation of GemFire (8.x or higher)
 * Python 2.6+
 * The following packages need to be installed: awscli, gcc, python-devel,python-pip
 * the "netifaces" python package.  This usually can be installed as follows:
@@ -60,31 +55,17 @@ Note that this does not stop locators.
 ```
     
     
-# Setting Up a Remote Cluster #
-
-GemFire manager has certain requirements about how managed members are set up.
-
-* hosts must have a gemfire installation and a JDK and the _gemfire_ and _java-home_
-properties in _cluster.json_ must point to those locations.
-* cluster scripts _cluster.py, clusterdef.py and gemprops.py_ must be placed in 
-the cluster home directory (which is specified using the _cluster-home_ setting).
-* All machines must have the same cluster definition file.  This file must be named
-_cluster.json_ and it must be in the same directory as the cluster scripts.
-* The machines hosting cluster members must be set up with a user who will run the
-admin commands (e.g. start and stop servers). That user must be set up for
-passwordless ssh logins
-* The admin user must have write access to the cluster-home directory and the
-configuration files and scripts it contains.
-
-
 #Remote Cluster Walkthrough#
 This walk though takes you through setting up and starting a gemfire cluster
 with 1 locator and 3 data nodes.  You will be able to control the cluster from
-your local machine provided you have ssh access to all 4 remote machines.
+your local machine provided you have ssh access to all remote machines.
 
-1. Provision or obtain access to 4 servers.  Ensure that java and gemfire have been copied
-to the same location on all for servers (the sample script assumes that java
-and gemfire are in _/runtime/java_ and _/runtime/gemfire_ respectively).
+1. Provision or obtain access to 4 servers. Review the requirements above and
+and ensure that all of the required packages have been installed.
+
+2. Place an unpacked JDK and GemFire installation in the same location on all
+servers (the sample script assumes that java and gemfire are in _/runtime/java_
+and _/runtime/gemfire_ respectively).
 
 2. Set up all 4 machines for passwordless ssh. You will of course need the
 private key file on your local machine.
@@ -92,19 +73,72 @@ private key file on your local machine.
 3. Create a cluster home directory in the same place on all 4 machines
 (e.g. /runtime/cluster_1)
 
-4. Copy _samples/remote-cluster.json_ to  _cluster.json_ in the project
-home directory (the directory where _cluster.py_ is).
+4. On your local machine, copy _samples/remote-cluster.json_ to  _cluster.json_
+in the project home directory (the directory where _cluster.py_ is).
 
-5. Edit _cluster.json_ - set the _cluster-home_,_java_home_ and _gemfire_ settings
-to the directories you chose in steps 1-3.
+5. Edit the _global_properties_ section of _cluster.json_. Set the
+_cluster-home_,_java_home_ and _gemfire_ settings to the directories you chose
+in steps 1-3.
+
+6. Decide which machine(s) will host a locator.  Edit  the _global_properties_
+section of _cluster.json_ and set the _locators_ property accordingly.  The code
+block below is an example of how the _global_properties_ should look.
  
-2. Start the cluster.
-```
-python gf.py start
-```
+    ```json
+    {
+        "global-properties":{
+            "gemfire": "/runtime/gemfire",
+            "java-home" : "/runtime/java",
+            "locators" : "locator.example.com[10000]",
+            "cluster-home" : "/runtime/cluster1"
+    },
+    ...
+    ```
+7. Edit _cluster.json_.  Under the entry for each host, configure the ssh user,
+host and keypair.  This information will be used by the _gf.py_ cluster control
+script to access the members of the cluster.  The _key_file_ setting must point
+to the key file on your local machine.  The members of the cluster do not need
+SSH access to eachother.
+
+    ```json
+    ...
+   "hosts": {
+        "locator.example.com" : {
+            "host-properties" :  {
+             },
+             "processes" : {
+                "locator" : {
+                    "type" : "locator",
+                    "bind-address": "10.0.0.101",
+                    "http-service-bind-address" : "10.0.0.101",
+                    "jmx-manager-bind-address" : "10.0.0.101"
+                 }
+             },
+             "ssh" : {
+                "host" : "54.236.255.190",
+                "user" : "root",
+                "key-file" : "/home/me/.ssh/id_rsa"
+             }
+        },
+        ...
+    ```
+
+8. Copy the contents of the project directory on your local machine into the
+cluster home directory (as specified in the _global_properties_ section of
+_cluster.json_ ) on all of the remote machines.  The _cluster_home_ directories on
+all remote machines should now contain the recently edited _cluster.json_ as well
+as the cluster control scripts: _gf.py_, _cluster.py_, _clusterdef.py_ and _gemprops.py_.
+ 
+9. Start the remote cluster using the followng command from the local machine.
+    ```
+    python gf.py start
+    ```
+    This will start any cluster members that are not already started.  It will
+    start all data nodes in parallel to avoid deadlock during startup. 
 3. Verify the cluster is running by checking pulse. Assuming you have a gemfire
-manager running on host "locatorhost" the url would be: http://locatorhost:17070/pulse
-Log in with "admin"/"admin"
+manager running on host "locator.example.com" the url would be:
+http://locator.example.com:17070/pulse.  You can with username/password ="admin"/"admin"
+
 4. Stop and start a member.  Use the member name, which is the key of the process
 entry in the cluster.json file.
 ```

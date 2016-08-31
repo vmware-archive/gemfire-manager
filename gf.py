@@ -1,3 +1,6 @@
+#
+# Copyright (c) 2015-2016 Pivotal Software, Inc. All Rights Reserved.
+#
 import clusterdef
 import fileinput
 import json

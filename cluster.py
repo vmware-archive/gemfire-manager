@@ -1,4 +1,7 @@
 #!/usr/bin/python
+#
+# Copyright (c) 2015-2016 Pivotal Software, Inc. All Rights Reserved.
+#
 
 from __future__ import print_function
 import clusterdef

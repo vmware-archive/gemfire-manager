@@ -2,7 +2,6 @@
 # Copyright (c) 2015-2016 Pivotal Software, Inc. All Rights Reserved.
 #
 import gemprops
-import netifaces
 import os
 import socket
 
@@ -31,6 +30,7 @@ class ClusterDef:
     # name and translated into an ip address using the netifaces package
     def translateBindAddress(self,addr):
         if not '.' in addr:
+            import netifaces
             if addr in netifaces.interfaces():
                 #TODO does this ever return an ipV6 address ?  Is that a problem ?
                 return netifaces.ifaddresses(addr)[netifaces.AF_INET][0]['addr']
@@ -128,10 +128,10 @@ class ClusterDef:
             val = self.translateBindAddress(val)
             
         if key in gemprops.GEMFIRE_PROPS:
-            return '--J=-Dgemfire.{0}={1}'.format(key,val)
+            return '"--J=-Dgemfire.{0}={1}"'.format(key,val)
 
         else:
-            return '--J=-D{0}={1}'.format(key,val)
+            return '"--J=-D{0}={1}"'.format(key,val)
 
 
     def buildGfshArgs(self, props):

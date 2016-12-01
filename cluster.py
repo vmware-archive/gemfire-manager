@@ -239,7 +239,24 @@ def startServer(processName):
 		if proc.wait() != 0:
 			sys.exit("cache server process failed to start - see the logs in {0}".format(datanodeDir(processName)))
 
+# node type is 'datanode' or 'accessor'
+def startNodes(nodeType):		
+	procList = []
+	for dnode in clusterDef.processesOnThisHost(nodeType):
+		proc = launchServerProcess(dnode)
+		#can be None if server was already started
+		if proc is not None:
+			procList.append(proc)
 
+	failCount = 0
+	for proc in procList:
+		if proc.wait() != 0:
+			failCount += 1
+			
+	if failCount > 0:
+		print('at least one server failed to start. Please check the logs for more detail')
+
+# this method does not start accessors
 def startClusterLocal():
 	
 	# probably is only going to be one
@@ -261,6 +278,12 @@ def startClusterLocal():
 	if failCount > 0:
 		print('at least one server failed to start. Please check the logs for more detail')
 
+# nodeType is 'datanode' or 'accessor'
+def stopNodes(nodeType):
+	for dnode in clusterDef.processesOnThisHost(nodeType):
+		stopServer(dnode)
+
+
 def stopClusterLocal():
 	
 	for dnode in clusterDef.datanodesOnThisHost():
@@ -270,7 +293,8 @@ def stopClusterLocal():
 	for locator in clusterDef.locatorsOnThisHost():
 		stopLocator(locator)
 		
-			
+		
+# calls gfsh shutdown but does not stop locators	
 def stopCluster():
 	GEMFIRE = None
 	JAVA = None
@@ -313,7 +337,11 @@ def stopCluster():
 def printUsage():
 	print('Usage:')
 	print('   cluster.py  [--cluster-def=path/to/clusterdef.json] start <process-name>')
+	print('   cluster.py  [--cluster-def=path/to/clusterdef.json] start datanodes')
+	print('   cluster.py  [--cluster-def=path/to/clusterdef.json] start accessors')
 	print('   cluster.py  [--cluster-def=path/to/clusterdef.json] stop <process-name>')
+	print('   cluster.py  [--cluster-def=path/to/clusterdef.json] stop accessors')
+	print('   cluster.py  [--cluster-def=path/to/clusterdef.json] stop datanodes')
 	print('   cluster.py  [--cluster-def=path/to/clusterdef.json] status <process-name>')
 	print()
 	print('   cluster.py [--cluster-def=path/to/clusterdef.json] start')
@@ -395,7 +423,23 @@ if __name__ == '__main__':
 		obj = sys.argv[nextIndex]
 		nextIndex += 1
 		
-		if clusterDef.isLocatorOnThisHost(obj):
+		if obj == 'datanodes':
+			if cmd == 'start':
+				startNodes('datanode')
+			elif cmd == 'stop':
+				stopNodes('datanode')
+			else:
+				sys.exit(cmd + ' is an unkown operation for datanodes')
+		
+		elif obj == 'accessors':
+			if cmd == 'start':
+				startNodes('accessor')
+			elif cmd == 'stop':
+				stopNodes('accessor')
+			else:
+				sys.exit(cmd + ' is an unkown operation for accessors')
+		
+		elif clusterDef.isLocatorOnThisHost(obj):
 			if cmd == 'start':
 				startLocator(obj)
 			elif cmd == 'stop':

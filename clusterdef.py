@@ -162,6 +162,9 @@ class ClusterDef:
     def datanodesOnThisHost(self):
         return self.processesOnThisHost('datanode')
 
+    def accessorsOnThisHost(self):
+        return self.processesOnThisHost('accessor')
+
 
     def isLocatorOnThisHost(self, processName):
         return self.isProcessOnThisHost(processName, 'locator')

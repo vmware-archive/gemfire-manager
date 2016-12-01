@@ -87,7 +87,7 @@ def startCluster():
                     clusterScript = os.path.join(clusterScriptDir,'cluster.py')
                     runRemote(host['ssh'],'python', clusterScript, 'start' , pkey)
                 
-    # now start on all servers concurrently
+    # now start on all datanodes concurrently
     launches = []
     for hkey in clusterDef['hosts']:
         host = clusterDef['hosts'][hkey]
@@ -99,9 +99,9 @@ def startCluster():
                 clusterScriptDir = cdef.datanodeProperty(pkey,'cluster-home', host = hkey)
 
                 clusterScript = os.path.join(clusterScriptDir,'cluster.py')
-                launch = launchRemote(host['ssh'],'python', clusterScript,'start')
+                launch = launchRemote(host['ssh'],'python', clusterScript,'start', 'datanodes')
                 launches.append(launch)
-                continue #CONTINUE - once you find one data node thats all you need
+                break #BREAK - once you find one data node thats all you need
     
     fails = 0
     for launch in launches:
@@ -111,7 +111,34 @@ def startCluster():
     if fails > 0:
         sys.exit('at least one failure occurred while starting cluster')
     else:
-        print 'all servers started'
+        print 'all datanodes started'
+
+    # now start on all accessors concurrently
+    launches = []
+    for hkey in clusterDef['hosts']:
+        host = clusterDef['hosts'][hkey]
+        
+        for pkey in host['processes']:
+            process = host['processes'][pkey]
+            if process['type'] == 'accessor':
+                #cluster path needs to be absolute
+                clusterScriptDir = cdef.datanodeProperty(pkey,'cluster-home', host = hkey)
+
+                clusterScript = os.path.join(clusterScriptDir,'cluster.py')
+                launch = launchRemote(host['ssh'],'python', clusterScript,'start', 'accessors')
+                launches.append(launch)
+                break #BREAK - once you find one accessor thats all you need
+    
+    fails = 0
+    for launch in launches:
+        if launch.wait() != 0:
+            fails += 1
+            
+    if fails > 0:
+        sys.exit('at least one failure occurred while starting cluster')
+    else:
+        print 'cluster started'
+
         
 
 def runClusterScriptOnAnyHost(*args):    

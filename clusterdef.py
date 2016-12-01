@@ -128,10 +128,10 @@ class ClusterDef:
             val = self.translateBindAddress(val)
             
         if key in gemprops.GEMFIRE_PROPS:
-            return '"--J=-Dgemfire.{0}={1}"'.format(key,val)
+            return '--J="-Dgemfire.{0}={1}"'.format(key,val)
 
         else:
-            return '"--J=-D{0}={1}"'.format(key,val)
+            return '--J="-D{0}={1}"'.format(key,val)
 
 
     def buildGfshArgs(self, props):

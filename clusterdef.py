@@ -101,7 +101,7 @@ class ClusterDef:
             return dict()    
 
     # this is the main method for accessing properties  
-    def processProperty(self, processType, processName, propertyName, host = None):
+    def processProperty(self, processType, processName, propertyName, host = None, notFoundOK=False):
         pProps = self.processProps(processName, host = host)
         if propertyName in pProps:
             return pProps[propertyName]
@@ -118,7 +118,10 @@ class ClusterDef:
         if propertyName in globProps:
             return globProps[propertyName]
         else:
-            raise Exception('property not found: ' + propertyName)
+            if notFoundOK:
+                return None
+            else:
+                raise Exception('property not found: ' + propertyName)
 
 
     # this method assumes that it is not passed handled props or
@@ -176,8 +179,8 @@ class ClusterDef:
 
     #TODO it should not be necessary to pass the host in any case becaus the
     #     processName implies the host
-    def locatorProperty(self, processName, propertyName, host=None):
-        result = self.processProperty('locator',processName, propertyName, host = host)
+    def locatorProperty(self, processName, propertyName, host=None, notFoundOK = False):
+        result = self.processProperty('locator',processName, propertyName, host = host, notFoundOK = notFoundOK)
         if self.isBindAddressProperty(propertyName):
             return self.translateBindAddress(result)
         else:
@@ -186,8 +189,8 @@ class ClusterDef:
         
     #TODO it should not be necessary to pass the host in any case becaus the
     #     processName implies the host
-    def datanodeProperty(self, processName, propertyName, host=None):
-        result = self.processProperty('datanode',processName, propertyName, host = host)
+    def datanodeProperty(self, processName, propertyName, host=None, notFoundOK = False):
+        result = self.processProperty('datanode',processName, propertyName, host = host, notFoundOK = notFoundOK)
         if self.isBindAddressProperty(propertyName):
             return self.translateBindAddress(result)
         else:

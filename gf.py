@@ -227,8 +227,17 @@ def redundancyEstablished(wait = 0):
     success = False
     for l in locatorList:
         try:
-            host = cdef.locatorProperty(l[1],'jmx-manager-bind-address', host=l[0])
-            port = cdef.locatorProperty(l[1],'jmx-manager-port', host=l[0])
+            host = cdef.locatorProperty(l[1],'jmx-manager-hostname-for-clients', host=l[0], notFoundOK = True)
+            if host is None:
+                host = cdef.locatorProperty(l[1],'jmx-manager-bind-address', host=l[0], notFoundOK=True)
+                if host is None:
+                    host = l[2]['host']
+                
+            port = cdef.locatorProperty(l[1],'jmx-manager-port', host=l[0], notFoundOK=True)
+            if port is None:
+                print 'warning, could not ascertain jmx-manager-port for "{0}" from settings - using 1099'.format(host)
+                port = 1099
+                
             p = subprocess.Popen(['ssh', '-o','StrictHostKeyChecking=no',
                         '-t', '-i', l[2]['key-file'],
                         '{0}@{1}'.format(l[2]['user'], l[2]['host']),
@@ -243,7 +252,7 @@ def redundancyEstablished(wait = 0):
                             '-t', '-i', l[2]['key-file'],
                             '{0}@{1}'.format(l[2]['user'], l[2]['host']),
                             'GEMFIRE={0}'.format(gemfire), 'JAVA_HOME={0}'.format(javaHome),
-                            'python', os.path.join(clusterHome,'gemtools','checkred.py'),
+                            '/usr/bin/python', os.path.join(clusterHome,'gemtools','checkred.py'),
                             '--jmx-manager-host={0}'.format(host),
                             '--jmx-manager-port={0}'.format(port)]
                 if wait != 0:
@@ -256,8 +265,10 @@ def redundancyEstablished(wait = 0):
                     return True
                 else:
                     return False
+            else:
+                print 'warning - could not connect to jmx manager "{0}"'.format(host) 
     
-        except Exception :
+        except Exception  as x:
             pass
     
     if success == False:

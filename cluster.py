@@ -194,6 +194,9 @@ def startServerCommandLine(processName):
 		]
 	
 	#these are optional
+	if clusterDef.hasDatanodeProperty(processName,'hostname-for-clients'):
+		cmdLine.append('--hostname-for-clients={0}'.format(clusterDef.datanodeProperty(processName, 'hostname-for-clients')))
+
 	if clusterDef.hasDatanodeProperty(processName,'classpath'):
 		cmdLine.append('--classpath={0}'.format(clusterDef.datanodeProperty(processName, 'classpath')))
 		
@@ -222,6 +225,7 @@ def launchServerProcess(processName):
 		return
 	
 	cmdLine = startServerCommandLine(processName)
+	print('>>> starting server with {0}'.format(' '.join(cmdLine)))
 	
 	try:
 		proc = subprocess.Popen(cmdLine)
@@ -461,6 +465,3 @@ if __name__ == '__main__':
 			
 		else:
 			sys.exit(obj + ' is not defined for this host or is not a known process type')		
-	
-
-		

@@ -321,3 +321,11 @@ the information needed to connect to that host.
 ```
 
 
+# Example Gfsh commands
+
+python gf.py start 
+python gf.py gfsh list members
+python gf.py gfsh list regions
+python gf.py gfsh list members
+python gf.py gfsh create region --name=UserProfile  --type=PARTITION_REDUNDANT_PERSISTENT_OVERFLOW
+python gf.py gfsh create region --name=Address --type=PARTITION

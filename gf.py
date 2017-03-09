@@ -477,5 +477,3 @@ if __name__ == '__main__':
         else:
             sys.exit('an unrecognized command was supplied: {0}'.format(cmd))
         
-        
-        

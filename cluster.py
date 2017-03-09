@@ -170,6 +170,10 @@ def startLocator(processName):
 	#these are optional
 	if clusterDef.hasLocatorProperty(processName,'hostname-for-clients'):
 		cmdLine.append('--hostname-for-clients={0}'.format(clusterDef.locatorProperty(processName, 'hostname-for-clients')))
+		
+	if clusterDef.hasLocatorProperty(processName,'jmx-manager-hostname-for-clients'):
+		cmdLine.append('--J=-Djava.rmi.server.hostname={0}'.format(clusterDef.locatorProperty(processName, 'jmx-manager-hostname-for-clients')))
+	
 
 	if clusterDef.hasLocatorProperty(processName,'classpath'):
 		cmdLine.append('--classpath={0}'.format(clusterDef.locatorProperty(processName, 'classpath')))

@@ -4,7 +4,7 @@
 
 HANDLED_PROPS=['gemfire','java-home','cluster-home', 'bind-address', 'port',
                'jvm-options','server-bind-address', 'server-port', 'classpath'
-               , 'hostname-for-clients', 'enable-cluster-configuration', 'use-cluster-configuration']
+               , 'hostname-for-clients','properties-file','security-properties-file']
 
 
 GEMFIRE_PROPS=[
@@ -36,7 +36,7 @@ GEMFIRE_PROPS=[
     ,'distributed-system-id'
     ,'durable-client-id'
     ,'durable-client-timeout'
-#    ,'enable-cluster-configuration'
+    ,'enable-cluster-configuration'
     ,'enable-network-partition-detection'
     ,'enable-time-statistics'
     ,'enforce-unique-host'
@@ -133,6 +133,7 @@ GEMFIRE_PROPS=[
     ,'socket-lease-time'
     ,'ssl-ciphers'
     ,'ssl-enabled'
+    ,'ssl-enabled-components'
     ,'ssl-protocols'
     ,'ssl-require-authentication'
     ,'start-dev-rest-api'
@@ -145,7 +146,7 @@ GEMFIRE_PROPS=[
     ,'udp-fragment-size'
     ,'udp-recv-buffer-size'
     ,'udp-send-buffer-size'
-#    ,'use-cluster-configuration'
+    ,'use-cluster-configuration'
     ,'user-command-packages'
     ,'writable-working-dir'
     ]

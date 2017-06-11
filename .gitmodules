@@ -1,0 +1,3 @@
+[submodule "people-loader"]
+	path = people-loader
+	url = git@github.com:Pivotal-Data-Engineering/people-loader.git

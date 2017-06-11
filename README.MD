@@ -6,12 +6,12 @@ the cluster level functionality that GemFire users usually must write themselves
 * start/stop a whole cluster
 * start/stop individual members (whether local or remote)
 * prevent a user from stopping a member when it could cause data loss.
-* correctly perform a rolling restart (waiting for redundancy to be established when necessary) 
+* correctly perform a rolling restart (waiting for redundancy to be established when necessary)
 
 #Requirements#
 
 Each managed host must meet the following prerequisites:
-* Linux or OSX operating system 
+* Linux or OSX operating system
 * Python 2.6+
 * The following packages need to be installed: awscli, gcc, python-devel,python-pip
 * the "netifaces" python package.  This usually can be installed as follows:
@@ -53,8 +53,8 @@ Note that this does not stop locators.
 ```
     python cluster.py stop locator
 ```
-    
-    
+
+
 #Remote Cluster Walkthrough#
 This walk though takes you through setting up and starting a gemfire cluster
 with 1 locator and 3 data nodes.  You will be able to control the cluster from
@@ -83,7 +83,7 @@ in steps 1-3.
 6. Decide which machine(s) will host a locator.  Edit  the _global_properties_
 section of _cluster.json_ and set the _locators_ property accordingly.  The code
 block below is an example of how the _global_properties_ should look.
- 
+
     ```json
     {
         "global-properties":{
@@ -128,13 +128,13 @@ cluster home directory (as specified in the _global_properties_ section of
 _cluster.json_ ) on all of the remote machines.  The _cluster_home_ directories on
 all remote machines should now contain the recently edited _cluster.json_ as well
 as the cluster control scripts: _gf.py_, _cluster.py_, _clusterdef.py_ and _gemprops.py_.
- 
+
 9. Start the remote cluster using the followng command from the local machine.
     ```
     python gf.py start
     ```
     This will start any cluster members that are not already started.  It will
-    start all data nodes in parallel to avoid deadlock during startup. 
+    start all data nodes in parallel to avoid deadlock during startup.
 3. Verify the cluster is running by checking pulse. Assuming you have a gemfire
 manager running on host "locator.example.com" the url would be:
 http://locator.example.com:17070/pulse.  You can with username/password ="admin"/"admin"
@@ -153,7 +153,7 @@ python gf.py stop
 ```
 python gf.py stop locator
 ```
-    
+
 # The Cluster Configuration File#
 
 Two sample cluster configuration filea are shown below. One is for a local cluster
@@ -210,7 +210,7 @@ the information needed to connect to that host.
         "cluster-home" : "/tmp/gemfire"
     },
    "locator-properties" : {
-        "bind-address": "localhost", 
+        "bind-address": "localhost",
         "port" : 10000,
         "jmx-manager-port" : 11099,
         "http-service-bind-address" : "localhost",
@@ -223,7 +223,7 @@ the information needed to connect to that host.
         "conserve-sockets" : false,
         "jvm-options" : ["-Xmx3g","-Xms3g","-Xmn1g", "-XX:+UseConcMarkSweepGC", "-XX:+UseParNewGC", "-XX:CMSInitiatingOccupancyFraction=75"]
     },
-    "hosts": { 
+    "hosts": {
         "localhost": {  
             "host-properties" :  {
              },
@@ -323,7 +323,7 @@ the information needed to connect to that host.
 
 # Example Gfsh commands
 
-python gf.py start 
+python gf.py start
 python gf.py gfsh list members
 python gf.py gfsh list regions
 python gf.py gfsh list members

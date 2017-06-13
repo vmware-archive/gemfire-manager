@@ -2,8 +2,8 @@
 # Copyright (c) 2015-2016 Pivotal Software, Inc. All Rights Reserved.
 #
 
-HANDLED_PROPS=['gemfire','java-home','cluster-home', 'bind-address', 'port',
-               'jvm-options','server-bind-address', 'server-port', 'classpath'
+HANDLED_PROPS=['gemfire','java-home','cluster-home',  'port',
+               'jvm-options', 'server-port', 'classpath'
                , 'hostname-for-clients','properties-file','security-properties-file']
 
 
@@ -15,7 +15,7 @@ GEMFIRE_PROPS=[
     ,'async-distribution-timeout'
     ,'async-max-queue-size'
     ,'async-queue-timeout'
-#   ,'bind-address' handled by a gfsh --bind-address arg instead of a --J-D
+   ,'bind-address'
     ,'cache-xml-file'
     ,'cluster-configuration-dir'
     ,'cluster-ssl-ciphers'
@@ -119,7 +119,7 @@ GEMFIRE_PROPS=[
     ,'security-peer-auth-init'
     ,'security-peer-authenticator'
     ,'security-peer-verifymember-timeout'
-#   ,'server-bind-address'  this is set using a gfsh --server-bind-address argument not a --J-D argument
+    ,'server-bind-address'
     ,'server-ssl-ciphers'
     ,'server-ssl-enabled'
     ,'server-ssl-keystore'

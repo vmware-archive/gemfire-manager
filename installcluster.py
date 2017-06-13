@@ -53,7 +53,7 @@ if __name__ == '__main__':
     #read cluster.json
     clusterDefFile = sys.argv[1]
 
-    with open(os.path.join(here,clusterDefFile), 'r') as contextFile:
+    with open(clusterDefFile, 'r') as contextFile:
         clusterDefRaw = json.load(contextFile)
 
     clusterDef = clusterdef.ClusterDef(clusterDefRaw)

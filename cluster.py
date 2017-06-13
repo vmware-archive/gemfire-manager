@@ -171,15 +171,11 @@ def startLocator(processName):
         , "start", "locator"
         ,"--dir=" + locatorDir(processName)
         ,"--port={0}".format(clusterDef.locatorProperty(processName, 'port'))
-        #,'--bind-address={0}'.format(clusterDef.locatorProperty(processName,'bind-address'))
         ,"--name={0}".format(processName)]
 
     #these are optional
     if clusterDef.hasLocatorProperty(processName,'hostname-for-clients'):
         cmdLine.append('--hostname-for-clients={0}'.format(clusterDef.locatorProperty(processName, 'hostname-for-clients')))
-
-    if clusterDef.hasLocatorProperty(processName,'jmx-manager-hostname-for-clients'):
-        cmdLine.append('--J=-Djava.rmi.server.hostname={0}'.format(clusterDef.locatorProperty(processName, 'jmx-manager-hostname-for-clients')))
 
     if clusterDef.hasLocatorProperty(processName,'classpath'):
         cmdLine.append('--classpath={0}'.format(clusterDef.locatorProperty(processName, 'classpath')))
@@ -205,7 +201,6 @@ def startServerCommandLine(processName):
         , "start", "server"
         ,"--dir=" + datanodeDir(processName)
         ,"--name={0}".format(processName)
-        #,"--server-bind-address={0}".format(clusterDef.datanodeProperty(processName,'server-bind-address'))
         ,"--server-port={0}".format(clusterDef.datanodeProperty(processName,'server-port'))
         ]
 

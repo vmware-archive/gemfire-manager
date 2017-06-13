@@ -89,6 +89,8 @@ if __name__ == '__main__':
         if not os.path.isfile(keyFile):
             sys.exit('key file {0} not found'.format(keyFile))
 
+        os.chmod(keyFile,0600)
+
         # create the clusterParent dir on the remote host if it does not exist
         runQuietly('scp','-o','StrictHostKeyChecking=no','-o','UserKnownHostsFile=/dev/null','-i', keyFile, os.path.join(here, 'ensuredirs.py'), '{0}@{1}:/tmp'.format(userName, hostName))
         runRemote(keyFile, userName, hostName, 'python', '/tmp/ensuredirs.py', clusterHome)

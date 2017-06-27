@@ -320,7 +320,7 @@ def startMember(mname):
     runClusterScriptOnMemberHost(mname,'start', mname)
 
 def stopCluster():
-    runClusterScriptOnAnyHost('stop')
+    runClusterScriptOnAnyHost('shutdown')
 
 # TODO: should this be moved into clusterdef.py ?
 #

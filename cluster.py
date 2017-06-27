@@ -369,6 +369,7 @@ def printUsage():
     print('   cluster.py  [--cluster-def=path/to/clusterdef.json] stop datanodes')
     print('   cluster.py  [--cluster-def=path/to/clusterdef.json] status <process-name>')
     print()
+    print('   cluster.py [--cluster-def=path/to/clusterdef.json] shutdown')
     print('   cluster.py [--cluster-def=path/to/clusterdef.json] start')
     print('   cluster.py [--cluster-def=path/to/clusterdef.json] stop')
     print('Notes:')
@@ -440,8 +441,10 @@ if __name__ == '__main__':
     if len(sys.argv) == nextIndex:
         if cmd == 'start':
             startClusterLocal()
-        elif cmd == 'stop':
+        elif cmd == 'shutdown':
             stopCluster()
+        elif cmd == 'stop':
+            stopClusterLocal()
         else:
             sys.exit('unknown command: ' + cmd)
     else:

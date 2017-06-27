@@ -1,0 +1,18 @@
+[Unit]
+Description=GemFire Cluster
+After=remote-fs.target systemd-journald-dev-log.socket network-online.target
+Wants=network-online.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=forking
+Restart=no
+TimeoutSec=5min
+KillMode=control-group
+User=vagrant
+Group=vagrant
+WorkingDirectory=/runtime/gem_cluster_1
+ExecStart=/usr/bin/python cluster.py start
+ExecStop=/usr/bin/python cluster.py stop

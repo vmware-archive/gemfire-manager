@@ -65,17 +65,17 @@
 		<dependency>
 			<groupId>io.pivotal.gemfire</groupId>
 			<artifactId>geode-core</artifactId>
-			<version>9.0.1</version>
+			<version>9.0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>io.pivotal.gemfire</groupId>
 			<artifactId>geode-wan</artifactId>
-			<version>9.0.1</version>
+			<version>9.0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>io.pivotal.gemfire</groupId>
 			<artifactId>geode-cq</artifactId>
-			<version>9.0.1</version>
+			<version>9.0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>

@@ -300,7 +300,7 @@ def startClusterLocal():
                 failCount += 1
 
         if failCount == 0:
-            break:
+            break
         else:
             print('at least one server failed to start - will try {0} more times'.format(2-attempt))
             time.sleep(20)

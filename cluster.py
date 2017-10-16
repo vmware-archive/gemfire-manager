@@ -5,6 +5,7 @@
 from __future__ import print_function
 
 import clusterdef
+import gemprops
 import json
 #import netifaces
 import os
@@ -171,21 +172,12 @@ def startLocator(processName):
     cmdLine = [os.path.join(GEMFIRE,'bin','gfsh')
         , "start", "locator"
         ,"--dir=" + locatorDir(processName)
-        ,"--port={0}".format(clusterDef.locatorProperty(processName, 'port'))
         ,"--name={0}".format(processName)]
 
     #these are optional
-    if clusterDef.hasLocatorProperty(processName,'hostname-for-clients'):
-        cmdLine.append('--hostname-for-clients={0}'.format(clusterDef.locatorProperty(processName, 'hostname-for-clients')))
-
-    if clusterDef.hasLocatorProperty(processName,'classpath'):
-        cmdLine.append('--classpath={0}'.format(clusterDef.locatorProperty(processName, 'classpath')))
-
-    if clusterDef.hasLocatorProperty(processName,'properties-file'):
-        cmdLine.append('--properties-file={0}'.format(clusterDef.locatorProperty(processName, 'properties-file')))
-
-    if clusterDef.hasLocatorProperty(processName,'security-properties-file'):
-        cmdLine.append('--security-properties-file={0}'.format(clusterDef.locatorProperty(processName, 'security-properties-file')))
+    for setting in gemprops.HANDLED_PROPS[4:]:
+        if clusterDef.hasLocatorProperty(processName,setting):
+            cmdLine.append('--{1}={0}'.format(clusterDef.locatorProperty(processName, setting),setting))
 
     cmdLine[len(cmdLine):] = clusterDef.gfshArgs('locator',processName)
 
@@ -202,25 +194,12 @@ def startServerCommandLine(processName):
         , "start", "server"
         ,"--dir=" + datanodeDir(processName)
         ,"--name={0}".format(processName)
-        ,"--server-port={0}".format(clusterDef.datanodeProperty(processName,'server-port'))
         ]
 
     #these are optional
-    if clusterDef.hasDatanodeProperty(processName,'hostname-for-clients'):
-        cmdLine.append('--hostname-for-clients={0}'.format(clusterDef.datanodeProperty(processName, 'hostname-for-clients')))
-
-    if clusterDef.hasDatanodeProperty(processName,'classpath'):
-        cmdLine.append('--classpath={0}'.format(clusterDef.datanodeProperty(processName, 'classpath')))
-
-    if clusterDef.hasDatanodeProperty(processName,'spring-xml-location'):
-        cmdLine.append('--spring-xml-location={0}'.format(clusterDef.datanodeProperty(processName,'spring-xml-location')))
-
-    if clusterDef.hasDatanodeProperty(processName,'properties-file'):
-        cmdLine.append('--properties-file={0}'.format(clusterDef.datanodeProperty(processName, 'properties-file')))
-
-    if clusterDef.hasDatanodeProperty(processName,'security-properties-file'):
-        cmdLine.append('--security-properties-file={0}'.format(clusterDef.datanodeProperty(processName, 'security-properties-file')))
-
+    for setting in gemprops.HANDLED_PROPS[4:]:
+        if clusterDef.hasDatanodeProperty(processName,setting):
+            cmdLine.append('--{1}={0}'.format(clusterDef.datanodeProperty(processName, setting),setting))
 
     #all the rest are passed through as -Ds. Those recognized as gemfire properties
     #are prefixed with "gemfire."

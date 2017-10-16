@@ -144,7 +144,7 @@ class ClusterDef:
         if self.isBindAddressProperty(key):
             val = self.translateBindAddress(val)
 
-        if key in gemprops.GEMFIRE_PROPS:
+        if key in gemprops.GEMFIRE_PROPS or key.startswith('security-'):
             return '--J="-Dgemfire.{0}={1}"'.format(key,val)
 
         else:

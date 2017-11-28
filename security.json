@@ -1,0 +1,35 @@
+ {
+   "roles": [
+     {
+       "name": "admin",
+       "operationsAllowed": [
+         "CLUSTER:READ",
+         "CLUSTER:WRITE",
+         "CLUSTER:MANAGE",
+         "DATA:READ",
+         "DATA:WRITE",
+         "DATA:MANAGE"
+       ]
+     },
+     {
+       "name": "app",
+       "operationsAllowed": [
+         "DATA:READ",
+	        "DATA:WRITE",
+          "DATA:MANAGE"
+       ]
+     }
+   ],
+   "users": [
+     {
+       "name": "admin",
+       "password": "adm1n",
+       "roles": ["admin"]
+     },
+     {
+       "name": "app",
+       "password": "password",
+       "roles": ["app"]
+     }
+   ]
+ }

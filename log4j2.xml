@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="trace" shutdownHook="disable" packages="org.apache.geode.internal.logging.log4j">
+  <Appenders>
+    <RollingFile name="FILE" fileName="gemfire_stats.log" filePattern="gemfire_stats.%i.log">
+      <Policies>
+        <OnStartupTriggeringPolicy />
+        <SizeBasedTriggeringPolicy size="20 MB" />
+      </Policies>
+      <DefaultRolloverStrategy max="10" />
+      <JsonLayout/>
+    </RollingFile>
+  </Appenders>
+  <Loggers>
+    <Logger name="GEMFIRE_STATS" level="ALL" additivity="false">
+      <AppenderRef ref="FILE" />
+    </Logger>
+  </Loggers>
+</Configuration>

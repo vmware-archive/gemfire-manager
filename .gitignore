@@ -4,3 +4,8 @@
 .project
 .pydevproject
 runtime.json
+locator/
+datanode1/
+datanode2/
+datanode3/
+

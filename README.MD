@@ -6,25 +6,26 @@ the cluster level functionality that GemFire users usually must write themselves
 
 * install a gemfire cluster
 * start/stop a whole cluster
-* start/stop individual members (whether local or remote)
+* start/stop individual members
 * prevent a user from stopping a member when it could cause data loss.
-* correctly perform a rolling restart (waiting for redundancy to be established when necessary)
+* correctly perform a rolling restart by waiting for redundancy to be
+  established when necessary.
 
 __This project is not intended to replace gfsh.__  gfsh is the recommended
-approach for most administrative tasks like creating regions or adding 
-indices. T
+approach for most administrative tasks like creating regions or adding
+indices. 
 
-Most of these tasks require starting a GemFire process on a remote machine, 
-which is something gfsh does not do.  This project is meant to automate the 
-error-prone and tedious practice of logging in to all of the machines 
+Most of these tasks require starting a GemFire process on a remote machine,
+which is something gfsh does not do.  This project is meant to automate the
+error-prone and tedious practice of logging in to all of the machines
 in a cluster to make configuration changes or start processes.
 
 # How it works
 
-All configuration for the whole gemfire cluster resides in a single 
-configuration file, _cluster.json_, which can be versioned. 
+All configuration for the whole gemfire cluster resides in a single
+configuration file, _cluster.json_, which can be versioned.
 
-An example is shown below. 
+An example is shown below.
 
 ```json
 {
@@ -103,7 +104,7 @@ __No other configuration is required__
 
 Notes About cluster.json
 
-- The settings in _cluster.json_ are the same settings that can be put in 
+- The settings in _cluster.json_ are the same settings that can be put in
 _gemfire.properties_ or provided on the gfsh command line.
 - the hierarchical structure minimizes repeated configuration.
 - each host has an _ssh_ section that includes the information needed to ssh to that host
@@ -131,11 +132,11 @@ the following:
 
 # How it works
 
-gemfire-manager centralizes all configuration in one 
+gemfire-manager centralizes all configuration in one
 
 # Walk Through
 
-This walk through illustrates how to install and manage a cluster on a pair of bare bones Centos 7 VMs. For convenience, a Vagrant dev cluster configuration 
+This walk through illustrates how to install and manage a cluster on a pair of bare bones Centos 7 VMs. For convenience, a Vagrant dev cluster configuration
 is provided which you can use or you can use any other linux VMs.
 
 After cloning the project, you need to get all submodules as well.
@@ -161,8 +162,8 @@ cd vagrant
 python setup.py
 ```
 
-Now bring the vagrant machines up. 
- 
+Now bring the vagrant machines up.
+
 ```
 vagrant up
 ```
@@ -241,22 +242,22 @@ Verify that the cluster is running:
 python gf.py vagrant/cluster.json gfsh list members
 ```
 
-This command executes a gfsh command on an available server in the cluster.  The 
+This command executes a gfsh command on an available server in the cluster.  The
 gf.py script takes care of the `gfsh connect` command for you.  You can use this technique to run any gfsh command on the cluster.
 
 It is recommended to configure _read-serialized=true_ for GemFire clusters where
-there will be no server side code.  With _read-serialized=true_ it is not 
-necessary to put domain jars on the server class path.  However, this is not 
-the default.  This setting should be configured as part of cluster 
-initialization and a cluster restart is required after it is changed.  A 
+there will be no server side code.  With _read-serialized=true_ it is not
+necessary to put domain jars on the server class path.  However, this is not
+the default.  This setting should be configured as part of cluster
+initialization and a cluster restart is required after it is changed.  A
 convenience script to do this is provided with the framework.  The parameters
-to the script are the location of the cluster definition file, and the 
+to the script are the location of the cluster definition file, and the
 location, on the remote server, where the pdx disk store should be created.
 For this example, initialize pdx using the following command:
 
 ```
 python configpdx.py vagrant/cluster.json /home/vagrant/gemfire_cluster/data
-``` 
+```
 
 Note that the cluster is now stopped so start it again before continuing.
 
@@ -264,7 +265,7 @@ Note that the cluster is now stopped so start it again before continuing.
 python gf.py vagrant/cluster.json start
 ```
 
-Now we will create a region on the remote cluster and load some data using the 
+Now we will create a region on the remote cluster and load some data using the
 _people-loader_ sample application.
 
 ```
@@ -277,7 +278,7 @@ Review _vagrant/peopleloader.py_ to see how SSL is configured for a client.
 You can see that the following options are set by the script:
 
 ```
--Dgemfire.ssl-keystore=vagrant/trusted.keystore 
+-Dgemfire.ssl-keystore=vagrant/trusted.keystore
 -Dgemfire.ssl-keystore-password=passw0rd
 -Dgemfire.ssl-truststore=vagrant/trusted.keystore
 -Dgemfire.ssl-truststore-password=passw0rd
@@ -290,7 +291,7 @@ You can see that the following options are set by the script:
 To finish up, use a gfsh _get_ command to verify the data is there.  
 
 ```
-python gf.py vagrant/cluster.json gfsh get --region=Person --key=1 --key-class=java.lang.Integer 
+python gf.py vagrant/cluster.json gfsh get --region=Person --key=1 --key-class=java.lang.Integer
 ```
 
 To stop the whole cluster:
@@ -302,8 +303,8 @@ python gf.py vagrant/cluster.json gfsh shutdown --include-locators=true
 # Local Cluster Walk Through#
 
 This framework can also be used to quickly set up a local cluster with whatever
-configuration you desire.  It uses the same _cluster.json_ cluster configuration 
-file. However, instead of using _gf.py_, _cluster.py_ is used with local 
+configuration you desire.  It uses the same _cluster.json_ cluster configuration
+file. However, instead of using _gf.py_, _cluster.py_ is used with local
 clusters.  _gf.py_ always runs commands via ssh whereas _cluster.py_ always acts locally.
 
 Define the GEMFIRE and JAVA_HOME environment variables to point to your
@@ -322,7 +323,7 @@ python cluster.py --cluster-def=local/cluster.json start
 ```
 
 Now, as with the remote cluster, create a disk store and configure pdx read
-serialized=true and restart the cluster. However this time you can use gfsh 
+serialized=true and restart the cluster. However this time you can use gfsh
 directly.
 
 ```
@@ -340,7 +341,7 @@ gfsh -e "connect --locator=localhost[10000]" -e "create disk-store --dir=data/pe
 gfsh -e "connect --locator=localhost[10000]" -e "create region --name=Person --disk-store=person-disk-store --type=PARTITION_REDUNDANT_PERSISTENT"
 ```
 
-... and load some data (note there is a different _peopleloader.py_ script 
+... and load some data (note there is a different _peopleloader.py_ script
 because SSL is not configured in the local example.
 
 ```
@@ -523,5 +524,3 @@ the information needed to connect to that host.
     }
 }
 ```
-
-

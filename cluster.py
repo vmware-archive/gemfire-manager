@@ -156,8 +156,7 @@ def statusServer(processName):
     except subprocess.CalledProcessError as x:
         sys.exit(x.output)
 
-
-def startLocator(processName):
+def launchLocatorProcess(processName):
     GEMFIRE = clusterDef.locatorProperty(processName,'gemfire')
     os.environ['GEMFIRE'] = GEMFIRE
     os.environ['JAVA_HOME'] = clusterDef.locatorProperty(processName,'java-home')
@@ -182,9 +181,20 @@ def startLocator(processName):
     cmdLine[len(cmdLine):] = clusterDef.gfshArgs('locator',processName)
 
     try:
-        subprocess.check_call(cmdLine)
-    except Exception as x:
-        sys.exit('command failed: ' + ' '.join(cmdLine))
+        proc = subprocess.Popen(cmdLine)
+    except subprocess.CalledProcessError as x:
+        sys.exit(x.message)
+
+    return proc
+
+
+def startLocator(processName):
+    proc = launchLocatorProcess(processName)
+
+    #could be none if the locator was really already running
+    if proc is not None:
+        if proc.wait() != 0:
+            sys.exit("locator process failed to start - see the logs in {0}".format(locatorDir(processName)))
 
 def startServerCommandLine(processName):
     GEMFIRE = clusterDef.datanodeProperty(processName,'gemfire')
@@ -256,14 +266,25 @@ def startNodes(nodeType):
             failCount += 1
 
     if failCount > 0:
-        print('at least one server failed to start. Please check the logs for more detail')
+        print('At least one server failed to start. Please check the logs for more detail')
 
 # this method does not start accessors
 def startClusterLocal():
 
-    # probably is only going to be one
+    # probably is only going to be one - using "launch" for local clusters with multiple locators
+    procList = []
+    failCount = 0
     for locator in clusterDef.locatorsOnThisHost():
-        startLocator(locator)
+        proc = launchLocatorProcess(locator)
+        if proc is not None:
+            procList.append(proc)
+
+    for proc in procList:
+        if proc.wait() != 0:
+            failCount += 1
+
+    if failCount > 0:
+        sys.exit('At least one locator failed to start.  Please check the logs.')
 
     for attempt in range(3):
         failCount = 0

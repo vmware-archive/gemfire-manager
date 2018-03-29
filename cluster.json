@@ -48,10 +48,10 @@
                     "jmx-manager-start" : "true"
                  },
                  "locator2" : {
-                   "port" : 11000,
-                   "jmx-manager-port" : 11099,
-                   "http-service-port" : 11070,
-                     "type" : "locator"
+                     "type" : "locator",
+                     "port" : 11000,
+                     "jmx-manager-port" : 11099,
+                     "http-service-port" : 11070
                   },
                 "datanode1" : {
                     "type" : "datanode",

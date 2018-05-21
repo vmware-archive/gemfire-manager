@@ -2,12 +2,8 @@
     "global-properties":{
         "gemfire": "${GEMFIRE}",
         "java-home" : "${JAVA_HOME}",
-        "locators" : "localhost[10000],localhost[11000]",
+        "locators" : "localhost[10000]",
         "cluster-home" : ".",
-        "security-manager" : "org.apache.geode.examples.security.ExampleSecurityManager",
-        "security-username" : "admin",
-        "security-password" : "adm1n",
-        "classpath": "..",
         "distributed-system-id": 1
     },
    "locator-properties" : {
@@ -36,7 +32,7 @@
         "log-file" : "server.log",
         "enable-network-partition-detection" : "true",
         "gemfire.ALLOW_PERSISTENT_TRANSACTIONS" : "true",
-        "jvm-options" : ["-Xmx128m","-Xms128m","-Xmn68m", "-XX:+UseConcMarkSweepGC", "-XX:+UseParNewGC", "-XX:CMSInitiatingOccupancyFraction=85"]
+        "jvm-options" : ["-Xmx512m","-Xms512m","-Xmn64m", "-XX:+UseConcMarkSweepGC", "-XX:+UseParNewGC", "-XX:CMSInitiatingOccupancyFraction=85"]
     },
     "hosts": {
         "localhost" : {
@@ -46,31 +42,18 @@
                 "locator1" : {
                     "type" : "locator",
                     "port" : 10000,
-                    "jmx-manager-port" : 10099,
-                    "http-service-port" : 10070,
+                    "jmx-manager-port" : 11099,
+                    "http-service-port" : 17070,
                     "jmx-manager-start" : "true"
                  },
-                 "locator2" : {
-                   "port" : 11000,
-                   "jmx-manager-port" : 11099,
-                   "http-service-port" : 11070,
-                     "type" : "locator"
-                  },
                 "datanode1" : {
                     "type" : "datanode",
-                    "tcp-port" : 10001,
                     "server-port" : 10100
                  },
                  "datanode2" : {
                      "type" : "datanode",
-                     "tcp-port" : 10002,
                      "server-port" : 10200
-                  },
-                  "datanode3" : {
-                      "type" : "datanode",
-                      "tcp-port" : 10003,
-                      "server-port" : 10300
-                    }
+                   }
              }
         }
     }

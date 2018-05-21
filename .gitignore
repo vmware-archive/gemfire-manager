@@ -1,7 +1,8 @@
-cluster.json
 *.log
 *.pyc
 **/.DS_Store
 .project
 .pydevproject
 runtime.json
+locator*/
+datanode*/

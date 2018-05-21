@@ -1,9 +1,0 @@
-.DS_Store
-/target
-/.settings
-.classpath
-.project
-.pydevproject
-*.pyc
-
-

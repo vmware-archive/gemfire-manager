@@ -1,29 +1,78 @@
 # Overview
 
-The purpose of this project is to simplify GemFire cluster management by adding
-the cluster level functionality that GemFire users usually must write themselves
-.In a nutshell, it adds commands to:
+This project is a local environment consisting of one locator and 2 data nodes
+which can be used for local development and testing.
 
-* install a gemfire cluster
-* start/stop a whole cluster
-* start/stop individual members
-* prevent a user from stopping a member when it could cause data loss.
-* correctly perform a rolling restart by waiting for redundancy to be
-  established when necessary.
+# Reqirements
 
-__This project is not intended to replace gfsh.__  gfsh is the recommended
-approach for most administrative tasks like creating regions or adding
-indices. 
+Python 2 or 3
+A JDK
+A GemFire 9.x installation
 
-Most of these tasks require starting a GemFire process on a remote machine,
-which is something gfsh does not do.  This project is meant to automate the
-error-prone and tedious practice of logging in to all of the machines
-in a cluster to make configuration changes or start processes.
+# Setup
+
+1. If it is not already present, install Python from
+   https://www.python.org/downloads/release/python-365/ (Python 2 is OK too)
+
+2. If not already present, install JDK version 1.8 (not just a JRE) from
+   http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+
+3. Download GemFire from: http://download.pivotal.com.s3.amazonaws.com/gemfire/9.3.0/pivotal-gemfire-9.3.0.zip
+   and unzip it into a directory _that does not have spaces in its name_.
+
+4. Edit cluster.json to point to the locations where you have installed GemFire
+   and java.  For example:
+   ```
+   {
+       "global-properties":{
+           "gemfire": "D:/Users/rmay/pivotal-gemfire-9.3.0",
+           "java-home" : "C:/Program Files/Java/jdk1.8.0_171",
+           ...
+   }
+   ```
+
+5. Initialize the cluster. From the command line, cd to the directory containing
+cluster.json and run:  `python initcluster.py`
+
+That completes the setup.  You can now use your cluster.
+
+# Cluster Administration
+
+## Start and Stop
+
+Start the cluster: `python cluster.py start`
+
+Stop the cluster: `python cluster.py stop`
+
+## Start Over
+
+This will remove all regions and persistent data.
+
+- stop the cluster (see above)
+- remove the working directories for each process (e.g. "locator1", "datanode1" , "datanode2")
+- run the initcluster.py script again
+
+## Useful Gfsh Commands
+
+gfsh is in the "bin" folder of the GemFire distribution.  Use "gfsh.bat" for
+Windows and "gfsh" for other OSs.
+
+- connect: `connect --locator=localhost[10000]`  
+- list members (must be connected): `list members`
+- list regions (must be connected): `list regions`
+- create a new partitioned region with 2 copies and no persistence (must be connected)
+`create region --name=dev3_myregion` --type=PARTITION_REDUNDANT
+
+## Other useful information
+
+- log files: datanode{1,2}/server.log, locator1/locator.log
+- locator port: 10000
+- Pulse Web UI: http://localhost:17070/pulse (log in with "admin"/"admin")
 
 # How it works
 
-All configuration for the whole gemfire cluster resides in a single
-configuration file, _cluster.json_, which can be versioned.
+All configuration resides in a single configuration file, _cluster.json_,
+which can be versioned.
 
 An example is shown below.
 
@@ -111,254 +160,6 @@ _gemfire.properties_ or provided on the gfsh command line.
 
 _Simply put, gemfire-manager uses the information in cluster.json to ssh  to one or more machines in the cluster and issue gfsh commands_.
 
-
-
-# Requirements
-
-Each managed host must meet the following prerequisites:
-
-* Linux or OSX operating system
-* The GemFire 9.x product must be installed somewhere on the file system
-(readable by the run as user)
-* A compatible Java 1.8 JDK
-* Python 2.6+
-
-The local machine which will be used to perform the installation needs
-the following:
-
-* A Java 1.8 JDK
-* A working Apache Maven install
-* Python 2.6+
-
-# How it works
-
-gemfire-manager centralizes all configuration in one
-
-# Walk Through
-
-This walk through illustrates how to install and manage a cluster on a pair of bare bones Centos 7 VMs. For convenience, a Vagrant dev cluster configuration
-is provided which you can use or you can use any other linux VMs.
-
-After cloning the project, you need to get all submodules as well.
-
-```
-git submodule init
-git submodule update
-```
-
-Build the people-loader project.
-
-```
-cd people-loader
-mvn package
-cd ..
-```
-
-Now run _setup.py_ in the _vagrant_ folder.  This will download a copy of GemFire which will be installed on the Vagrant machines.  It will also generate a keystore which will be used to encrypt the
-connections using SSL
-
-```
-cd vagrant
-python setup.py
-```
-
-Now bring the vagrant machines up.
-
-```
-vagrant up
-```
-
-While they are being initialized, peruse _Vagrantfile_ to see how the boxes are being configured.  After provisioning, the machines will have:
-
-* a JDK installed
-* Naming configured such that `hostname` on each machine is resolvable on every other machine in the cluster
-* Passwordless SSH is configured for the run as user, which in this
-case is _vagrant_
-* GemFire is unzipped to a location readable by the run as user.
-* Directories are set up for the cluster working directory, logs, data stores (if any) and backups, all writeable by the run as user.
-* If SSL will be used, the keystore and _security.properties_ file
-(which contains passwords) are readable by the runas user but otherwise locked down.
-
-_This represents a typical starting point for installing a GemFire cluster on-premise and the same requirements would apply._
-
-Now have a look at _cluster.json_ in the _vagrant_ folder.  This very important file contains all of the settings for running a gemfire cluster.  Note the hierarchical structure that minimizes repeated configuration. Settings that are the same for all servers are specified only once at the global level while settings that are specific to each machine are in a machine specific section.  Below are a few important points about this file. See _The Cluster Configuration File_ below for more details.
-
-* Each host must have a section and the name of the section must
-match the value returned by `hostname` on that machine.
-* Each host section contains an _ssh_ section that contains a name
-or IP address, a user name, and the location of the key file to use
-for passwordless ssh. The user name must be the run as user.
-
-Here is an example host configuration section.
-
-```
-"server2" : {
-    "host-properties" :  {
-     },
-     "processes" : {
-        "datanode2" : {
-            "type" : "datanode",
-            "bind-address" : "10.10.10.102",
-            "http-service-port": 18080,
-            "start-dev-rest-api" : "true"
-         }
-     },
-     "ssh" : {
-        "host" : "10.10.10.102",
-        "user" : "vagrant",
-        "key-file" : "vagrant/id_rsa"
-     }
-}
-```
-Now install the cluster.  This does the following:
-
-* builds and uploads _gemfire_toolkit_, which contains a collection of helper functions used by the framework.
-* places the cluster configuration file in the cluster home directory
-* copies some cluster control scripts to the cluster home directory
-
-
-```
-cd ..
-python installcluster.py vagrant/cluster.json
-```
-
-If the cluster configuration, the scripts or the toolkit need to be
-modified, this script can safely be run again to push the updates
-onto all machines in the cluster.
-
-Now you can start the cluster.
-
-```
-python gf.py vagrant/cluster.json start
-```
-
-This command will ssh onto each machine in the cluster and execute the
-proper gfsh commands to start the cluster with SSL enabled for intra-cluster
-traffic and client-server traffic.
-
-Verify that the cluster is running:
-
-```
-python gf.py vagrant/cluster.json gfsh list members
-```
-
-This command executes a gfsh command on an available server in the cluster.  The
-gf.py script takes care of the `gfsh connect` command for you.  You can use this technique to run any gfsh command on the cluster.
-
-It is recommended to configure _read-serialized=true_ for GemFire clusters where
-there will be no server side code.  With _read-serialized=true_ it is not
-necessary to put domain jars on the server class path.  However, this is not
-the default.  This setting should be configured as part of cluster
-initialization and a cluster restart is required after it is changed.  A
-convenience script to do this is provided with the framework.  The parameters
-to the script are the location of the cluster definition file, and the
-location, on the remote server, where the pdx disk store should be created.
-For this example, initialize pdx using the following command:
-
-```
-python configpdx.py vagrant/cluster.json /home/vagrant/gemfire_cluster/data
-```
-
-Note that the cluster is now stopped so start it again before continuing.
-
-```
-python gf.py vagrant/cluster.json start
-```
-
-Now we will create a region on the remote cluster and load some data using the
-_people-loader_ sample application.
-
-```
-python gf.py vagrant/cluster.json gfsh create disk-store --name=person-disk-store --dir=/home/vagrant/gemfire_cluster/data/person
-python gf.py vagrant/cluster.json gfsh create region --name=Person --disk-store=person-disk-store --type=PARTITION_REDUNDANT_PERSISTENT
-python vagrant/peopleloader.py --locator=10.10.10.101[10000] --count=100
-```
-
-Review _vagrant/peopleloader.py_ to see how SSL is configured for a client.  
-You can see that the following options are set by the script:
-
-```
--Dgemfire.ssl-keystore=vagrant/trusted.keystore
--Dgemfire.ssl-keystore-password=passw0rd
--Dgemfire.ssl-truststore=vagrant/trusted.keystore
--Dgemfire.ssl-truststore-password=passw0rd
--Dgemfire.ssl-default-alias=self
--Dgemfire.ssl-enabled-components=server
--Djavax.net.ssl.keyStoreType=JKS
--Djavax.net.ssl.trustStoreType=JKS
-```
-
-To finish up, use a gfsh _get_ command to verify the data is there.  
-
-```
-python gf.py vagrant/cluster.json gfsh get --region=Person --key=1 --key-class=java.lang.Integer
-```
-
-To stop the whole cluster:
-
-```
-python gf.py vagrant/cluster.json gfsh shutdown --include-locators=true
-```
-
-# Local Cluster Walk Through#
-
-This framework can also be used to quickly set up a local cluster with whatever
-configuration you desire.  It uses the same _cluster.json_ cluster configuration
-file. However, instead of using _gf.py_, _cluster.py_ is used with local
-clusters.  _gf.py_ always runs commands via ssh whereas _cluster.py_ always acts locally.
-
-Define the GEMFIRE and JAVA_HOME environment variables to point to your
-gemfire installation and an appropriate jdk.
-
-Examine the cluster configuration file: _local/cluster.json_
-
-If you wish to change the location used by the cluster for local storage,
-you may do so by modifying the _cluster-home_ setting in _cluster.json_.  The
-default is _/tmp/gemfire/sample_.  
-
-_Either way, please make sure that the cluster home directory exists!_
-
-```
-python cluster.py --cluster-def=local/cluster.json start
-```
-
-Now, as with the remote cluster, create a disk store and configure pdx read
-serialized=true and restart the cluster. However this time you can use gfsh
-directly.
-
-```
-gfsh -e "connect --locator=localhost[10000]" -e "create disk-store --dir=data/pdx --name=pdx-disk-store" -e "configure pdx --disk-store=pdx-disk-store --read-serialized=true"
-gfsh -e "connect --locator=localhost[10000]" -e "shutdown --include-locators=true"
-python cluster.py --cluster-def=local/cluster.json start
-
-```
-
-Now we can create a persistent region.
-
-```
-python cluster.py --cluster-def=local/cluster.json start
-gfsh -e "connect --locator=localhost[10000]" -e "create disk-store --dir=data/person --name=person-disk-store"
-gfsh -e "connect --locator=localhost[10000]" -e "create region --name=Person --disk-store=person-disk-store --type=PARTITION_REDUNDANT_PERSISTENT"
-```
-
-... and load some data (note there is a different _peopleloader.py_ script
-because SSL is not configured in the local example.
-
-```
-python local/peopleloader.py --locator=localhost[10000] --count=100
-```
-
-... and retrieve the data using a query
-
-```
-gfsh -e "connect --locator=localhost[10000]" -e "query --query='select * from /Person'"
-```
-
-... and finally stop the cluster
-
-```
-gfsh -e "connect --locator=localhost[10000]" -e "shutdown --include-locators=true"
-```
 
 # The Cluster Configuration File#
 

@@ -1,7 +1,7 @@
 {
     "global-properties":{
-        "gemfire": "${GEMFIRE}",
-        "java-home" : "${JAVA_HOME}",
+        "gemfire": "CHANGEME",
+        "java-home" : "CHANGEME",
         "locators" : "localhost[10000]",
         "cluster-home" : ".",
         "distributed-system-id": 1

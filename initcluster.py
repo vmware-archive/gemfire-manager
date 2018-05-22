@@ -5,6 +5,7 @@ import clusterdef
 import json
 import os
 import os.path
+import platform
 import subprocess
 import sys
 
@@ -39,10 +40,12 @@ def runRemote(sshKeyPath, user, host, *args):
 # MAIN
 #
 if __name__ == '__main__':
-    if 'GEMFIRE' not in os.environ:
-        sys.exit('Please set the GEMFIRE environment variable')
-
     here = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+    if platform.system() == 'Windows':
+        gfsh_cmd = 'gfsh.bat'
+    else:
+        gfsh_cmd = 'gfsh'
 
     dataDir = 'data/pdx'
 
@@ -53,18 +56,24 @@ if __name__ == '__main__':
     cluster = clusterdef.ClusterDef(cdef)
     locators = cluster.locatorProperty('locator1','locators')
 
-    gfsh = os.path.join(os.environ['GEMFIRE'],'bin','gfsh')
+    GEMFIRE = cluster.locatorProperty('locator1','gemfire')
+    os.environ['GEMFIRE'] = GEMFIRE
+    os.environ['JAVA_HOME'] = cluster.locatorProperty('locator1','java-home')
+
+    gfsh = os.path.join(GEMFIRE,'bin',gfsh_cmd)
 
     connect_cmd = [gfsh,'-e','connect --locator={0}'.format(locators)]
     create_diskstore_cmd = ['-e','create disk-store --name=pdx-disk-store --dir={0}'.format(dataDir)]
     configpdx_cmd = ['-e','configure pdx --disk-store=pdx-disk-store --read-serialized=true']
-    shutdown_cmd = ['-e','shutdown --include-locators=true']
+    #shutdown_cmd = ['-e','shutdown --include-locators=true']
 
     # make sure the cluster is up
     subprocess.check_call(['python',os.path.join(here,'cluster.py'), 'start'], cwd = here)
 
     # configure pdx and bring the cluster down
-    subprocess.check_call(connect_cmd + create_diskstore_cmd + configpdx_cmd + shutdown_cmd, cwd = here)
+    subprocess.check_call(connect_cmd + create_diskstore_cmd + configpdx_cmd , cwd = here)
 
-    # start the cluster again
-    subprocess.check_call(['python',os.path.join(here,'cluster.py'), 'start'], cwd = here)
+    # make sure the cluster is down
+    subprocess.check_call(['python',os.path.join(here,'cluster.py'), 'stop'], cwd = here)
+
+    print('cluster initialized, use "python cluster.py start" to start')

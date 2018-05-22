@@ -10,6 +10,7 @@ import json
 #import netifaces
 import os
 import os.path
+import platform
 import re
 import socket
 import subprocess
@@ -40,21 +41,27 @@ def datanodeDir(processName):
 
 
 def pidIsAlive(pidfile):
-    if not os.path.exists(pidfile):
-        return False
-
-    with open(pidfile,"r") as f:
-        pid = int(f.read())
-
-    proc = subprocess.Popen(["ps",str(pid)], stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-    proc.communicate()
-
-    if proc.returncode == 0:
-        return True
+    if platform.system() == 'Windows':
+        if not os.path.exists(pidfile):
+            return False
+        else:
+            return True
     else:
-        return False
+        if not os.path.exists(pidfile):
+            return False
+
+        with open(pidfile,"r") as f:
+            pid = int(f.read())
+
+        proc = subprocess.Popen(["ps",str(pid)], stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        proc.communicate()
+
+        if proc.returncode == 0:
+            return True
+        else:
+            return False
 
 def serverIsRunning(processName):
     try:
@@ -106,10 +113,22 @@ def stopLocator(processName):
         print('{0} is not running'.format(processName))
         return
     try:
-        subprocess.check_call([os.path.join(GEMFIRE,'bin','gfsh')
+        subprocess.check_call([os.path.join(GEMFIRE,'bin',gfsh_script)
             , "stop", "locator"
             ,"--dir=" + locatorDir(processName)])
-        print('stopped ' + processName)
+
+        for attempt in range(18):
+            if not locatorIsRunning(processName):
+                break
+            else:
+                print('waiting for locator to stop ...')
+                time.sleep(10)
+
+        if locatorIsRunning(processName):
+            print('WARNING: could not verify that {0} has stopped'.format(processName))
+        else:
+            print('stopped ' + processName)
+
     except subprocess.CalledProcessError as x:
         sys.exit(x.message)
 
@@ -122,10 +141,22 @@ def stopServer(processName):
         print('{0} is not running'.format(processName))
         return
     try:
-        subprocess.check_call([os.path.join(GEMFIRE,'bin','gfsh')
+        subprocess.check_call([os.path.join(GEMFIRE,'bin',gfsh_script)
             , "stop", "server"
             ,"--dir=" + datanodeDir(processName)])
-        print('stopped ' + processName)
+
+        for attempt in range(18):
+            if not serverIsRunning(processName):
+                break
+            else:
+                print('waiting for server to stop ...')
+                time.sleep(10)
+
+        if serverIsRunning(processName):
+            print('WARNING: could not verify that {0} has stopped'.format(processName))
+        else:
+            print('stopped ' + processName)
+
     except subprocess.CalledProcessError as x:
         sys.exit(x.message)
 
@@ -136,7 +167,7 @@ def statusLocator(processName):
     os.environ['JAVA_HOME'] = clusterDef.locatorProperty(processName,'java-home')
 
     try:
-        subprocess.check_call([os.path.join(GEMFIRE,'bin','gfsh')
+        subprocess.check_call([os.path.join(GEMFIRE,'bin',gfsh_script)
             , "status", "locator"
             ,"--dir=" + locatorDir(processName)])
 
@@ -149,7 +180,7 @@ def statusServer(processName):
     os.environ['JAVA_HOME'] = clusterDef.datanodeProperty(processName,'java-home')
 
     try:
-        subprocess.check_call([os.path.join(GEMFIRE,'bin','gfsh')
+        subprocess.check_call([os.path.join(GEMFIRE,'bin',gfsh_script)
             , "status", "server"
             ,"--dir=" + datanodeDir(processName)])
 
@@ -158,8 +189,14 @@ def statusServer(processName):
 
 def launchLocatorProcess(processName):
     GEMFIRE = clusterDef.locatorProperty(processName,'gemfire')
+    JAVA_HOME = clusterDef.locatorProperty(processName,'java-home')
     os.environ['GEMFIRE'] = GEMFIRE
-    os.environ['JAVA_HOME'] = clusterDef.locatorProperty(processName,'java-home')
+    os.environ['JAVA_HOME'] = JAVA_HOME
+    if 'CLASSPATH' in os.environ:
+        os.environ['CLASSPATH'] = os.environ['CLASSPATH'] + os.pathsep + os.path.join(JAVA_HOME,'lib','tools.jar')
+    else:
+        os.environ['CLASSPATH'] = os.path.join(JAVA_HOME,'lib','tools.jar')
+
 
     ensureDir(clusterDef.locatorProperty(processName, 'cluster-home'))
     ensureDir(locatorDir(processName))
@@ -168,7 +205,7 @@ def launchLocatorProcess(processName):
         print('locator {0} is already running'.format(processName))
         return
 
-    cmdLine = [os.path.join(GEMFIRE,'bin','gfsh')
+    cmdLine = [os.path.join(GEMFIRE,'bin',gfsh_script)
         , "start", "locator"
         ,"--dir=" + locatorDir(processName)
         ,"--name={0}".format(processName)]
@@ -200,7 +237,7 @@ def startServerCommandLine(processName):
     GEMFIRE = clusterDef.datanodeProperty(processName,'gemfire')
 
     #the properties in this list are required
-    cmdLine = [os.path.join(GEMFIRE,'bin','gfsh')
+    cmdLine = [os.path.join(GEMFIRE,'bin',gfsh_script)
         , "start", "server"
         ,"--dir=" + datanodeDir(processName)
         ,"--name={0}".format(processName)
@@ -220,9 +257,14 @@ def startServerCommandLine(processName):
 # returns a Popen object
 def launchServerProcess(processName):
     GEMFIRE = clusterDef.datanodeProperty(processName,'gemfire')
+    JAVA_HOME = clusterDef.datanodeProperty(processName,'java-home')
     os.environ['GEMFIRE'] = GEMFIRE
-    os.environ['JAVA_HOME'] = clusterDef.datanodeProperty(processName,'java-home')
+    os.environ['JAVA_HOME'] = JAVA_HOME
     os.environ['JAVA_ARGS'] = '-Dgfsh.log-dir=. -Dgfsh.log-level=fine'
+    if 'CLASSPATH' in os.environ:
+        os.environ['CLASSPATH'] = os.environ['CLASSPATH'] + os.pathsep + os.path.join(JAVA_HOME,'lib','tools.jar')
+    else:
+        os.environ['CLASSPATH'] = os.path.join(JAVA_HOME,'lib','tools.jar')
     #os.environ['JAVA_ARGS'] = '-Dgfsh.log-dir=.'
 
     ensureDir(clusterDef.datanodeProperty(processName, 'cluster-home'))
@@ -357,7 +399,7 @@ def stopCluster():
 
                     port = clusterDef.locatorProperty(pkey,'port', host = hkey)
                     GEMFIRE = clusterDef.locatorProperty(pkey,'gemfire', host = hkey)
-                    rc = subprocess.call([GEMFIRE + "/bin/gfsh"
+                    rc = subprocess.call([os.path.join(GEMFIRE,'bin',gfsh_cmd)
                         , "-e", "connect --locator={0}[{1}]".format(bindAddress,port)
                         ,"-e", "shutdown"])
                     if rc == 0:
@@ -404,6 +446,11 @@ if __name__ == '__main__':
 
     nextIndex = 1
     clusterDefFile = None
+
+    if platform.system() == 'Windows':
+        gfsh_script = 'gfsh.bat'
+    else:
+        gfsh_script = 'gfsh'
 
     #now process -- args
     while nextIndex < len(sys.argv):

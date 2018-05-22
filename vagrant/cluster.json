@@ -2,7 +2,7 @@
     "unused-settings" : {
     },
     "global-properties":{
-        "gemfire": "/home/vagrant/pivotal-gemfire-9.0.4",
+        "gemfire": "/home/vagrant/pivotal-gemfire-9.3.0",
         "java-home" : "/usr/lib/jvm/java",
         "locators" : "server1[10000]",
         "cluster-home" : "/home/vagrant/gemfire_cluster",
@@ -53,10 +53,6 @@
                     "bind-address" : "10.10.10.101",
                     "hostname-for-clients" : "10.10.10.101",
                     "jmx-manager-start" : "true"
-                 },
-                "datanode1" : {
-                    "type" : "datanode",
-                    "bind-address" : "10.10.10.101"
                  }
              },
              "ssh" : {
@@ -69,11 +65,9 @@
             "host-properties" :  {
              },
              "processes" : {
-                "datanode2" : {
+                "datanode1" : {
                     "type" : "datanode",
-                    "bind-address" : "10.10.10.102",
-                    "http-service-port": 18080,
-                    "start-dev-rest-api" : "true"
+                    "bind-address" : "10.10.10.102"
                  }
              },
              "ssh" : {

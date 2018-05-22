@@ -1,0 +1,1 @@
+create region --name=recentDeposit --type=REPLICATE_PERSISTENT --enable-statistics=true --entry-time-to-live-expiration=864000 --entry-time-to-live-expiration-action=destroy

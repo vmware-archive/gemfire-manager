@@ -1,0 +1,2 @@
+destroy region --name=responseCache
+create region --name=responseCache --type=REPLICATE_PERSISTENT --enable-statistics=true --entry-time-to-live-expiration=172800 --entry-time-to-live-expiration-action=destroy

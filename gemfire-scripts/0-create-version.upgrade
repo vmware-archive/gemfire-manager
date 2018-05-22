@@ -1,0 +1,1 @@
+create region --name=version --type=REPLICATE_PERSISTENT

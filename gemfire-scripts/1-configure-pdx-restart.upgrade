@@ -1,0 +1,1 @@
+configure pdx --read-serialized=true --disk-store=pdx-disk-store

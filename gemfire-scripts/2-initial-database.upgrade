@@ -1,0 +1,15 @@
+deploy --jar=/Users/rmay/.m2/repository/io/pivotal/pde/people-counter/1.0-SNAPSHOT/people-counter-1.0-SNAPSHOT.jar
+create disk-store --name=pdx-disk-store --dir=data/disk-stores/pdx-disk-store
+create disk-store --name=async-aggregate-queue-storage --dir=data/disk-stores/queue-disk-store
+
+create async-event-queue --id=async-aggregate-queue --persistent --disk-store=async-aggregate-queue-storage --listener=io.pivotal.pde.peoplecounter.PeopleCounter
+
+create region --name=responseCache --type=REPLICATE_PERSISTENT
+create region --name=deposit --type=REPLICATE_PERSISTENT
+create region --name=institution --type=REPLICATE_PERSISTENT
+create region --name=institutionHistory --type=REPLICATE_PERSISTENT
+create region --name=account --type=REPLICATE_PERSISTENT
+create region --name=aggregateEvent --type=REPLICATE_PERSISTENT --async-event-queue-id=async-aggregate-queue
+create region --name=aggregateRegion --type=REPLICATE_PERSISTENT
+create region --name=offer --type=REPLICATE_PERSISTENT
+create region --name=platformHistory --type=REPLICATE_PERSISTENT

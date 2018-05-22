@@ -1,0 +1,1 @@
+create region --name=session --type=REPLICATE_PERSISTENT

@@ -9,6 +9,7 @@ import gemprops
 #import netifaces
 import os
 import os.path
+import platform
 import socket
 import subprocess
 import sys

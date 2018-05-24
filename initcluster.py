@@ -50,10 +50,7 @@ if __name__ == '__main__':
     dataDir = 'data/pdx'
 
     clusterDefFile = os.path.join(here, 'cluster.json')
-    with open(clusterDefFile,'r') as cdfile:
-        cdef = json.load(cdfile)
-
-    cluster = clusterdef.ClusterDef(cdef)
+    cluster = clusterdef.ClusterDef(clusterDefFile)
     locators = cluster.locatorProperty('locator1','locators')
 
     GEMFIRE = cluster.locatorProperty('locator1','gemfire')

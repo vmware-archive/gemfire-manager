@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<cache xmlns="http://geode.apache.org/schema/cache" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	copy-on-read="false" is-server="false" lock-lease="120" lock-timeout="60"
+	search-timeout="300" version="1.0"
+	xsi:schemaLocation="http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd">
+	<disk-store name="pdx-disk-store">
+		<disk-dirs>
+			<disk-dir>data/pdx</disk-dir>
+		</disk-dirs>
+	</disk-store>
+	<pdx disk-store-name="pdx-disk-store" persistent="true"
+		read-serialized="true" />
+
+	<region name="account_global">
+		<region-attributes data-policy="replicate" scope="global" />
+	</region>
+
+	<region name="account_replicate">
+		<region-attributes refid="REPLICATE" />
+	</region>
+
+	<region name="account_partition">
+		<region-attributes refid="PARTITION_REDUNDANT" />
+	</region>
+
+	<region name="_locker">
+		<region-attributes refid="REPLICATE">
+			<entry-idle-time><expiration-attributes timeout="180" action="destroy"/></entry-idle-time>
+		</region-attributes>
+	</region>
+</cache>

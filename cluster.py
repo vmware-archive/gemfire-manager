@@ -60,6 +60,18 @@ def pidIsAlive(pidfile):
         else:
             return False
 
+def killDataNode(processName):
+    pidfile = os.path.join(clusterDef.datanodeProperty(processName, 'cluster-home'), processName, SERVER_PID_FILE)
+    with open(pidfile,"r") as f:
+        pid = int(f.read())
+
+    if platform.system == 'Windows':
+        subprocess.call(['Taskkill', '/PID' ,pid, '/F'])
+    else:
+        subprocess.call(['kill','-9',pid])
+
+    os.remove(pidfile)
+
 def serverIsRunning(processName):
     try:
         port = clusterDef.locatorProperty(processName, 'server-port')
@@ -150,9 +162,13 @@ def stopServer(processName):
                 time.sleep(10)
 
         if serverIsRunning(processName):
-            print('WARNING: could not verify that {0} has stopped'.format(processName))
+            print('WARNING: could not verify that {0} has stopped (it will be killed)'.format(processName))
+            killDataNode(processName)
+
         else:
             print('stopped ' + processName)
+
+
 
     except subprocess.CalledProcessError as x:
         sys.exit(x.message)

@@ -482,6 +482,12 @@ if __name__ == '__main__':
 
         cmdOffset = 1
 
+    ## TODO
+    # This block should be refactored.  It should not be necessary to
+    # have both cdef (the ClusterDef object) and clusterDef (the raw JSON object)
+    #
+    cdef = clusterdef.ClusterDef(clusterDefFile)
+
     #not doing environment variable substitutions because
     #this script only runs commands on remote servers
     with open(clusterDefFile,'r') as cdfile:
@@ -489,9 +495,9 @@ if __name__ == '__main__':
         if 'dummy' in clusterDef['hosts']:
             del clusterDef['hosts']['dummy']
 
-        cdef = clusterdef.ClusterDef(clusterDef)
 
     print 'loaded cluster defintion from {0}'.format(clusterDefFile)
+    #########################################
 
     if len(sys.argv) == 2 + cmdOffset:
         cmd = sys.argv[1 + cmdOffset]

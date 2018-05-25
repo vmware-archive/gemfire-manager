@@ -56,7 +56,9 @@ if __name__ == '__main__':
     with open(clusterDefFile, 'r') as contextFile:
         clusterDefRaw = json.load(contextFile)
 
-    clusterDef = clusterdef.ClusterDef(clusterDefRaw)
+    clusterDef = clusterdef.ClusterDef(clusterDefFile)
+
+    # TODO shouldn't be necessary to have both clusterDef and clusterDefRaw
 
     # build gemfire toolkit
     p = subprocess.Popen(['mvn','package'],cwd='gemfire-toolkit', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)

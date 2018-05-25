@@ -412,7 +412,7 @@ def stopCluster():
 
                     port = clusterDef.locatorProperty(pkey,'port', host = hkey)
                     GEMFIRE = clusterDef.locatorProperty(pkey,'gemfire', host = hkey)
-                    rc = subprocess.call([os.path.join(GEMFIRE,'bin',gfsh_cmd)
+                    rc = subprocess.call([os.path.join(GEMFIRE,'bin',gfsh_script)
                         , "-e", "connect --locator={0}[{1}]".format(bindAddress,port)
                         ,"-e", "shutdown"])
                     if rc == 0:

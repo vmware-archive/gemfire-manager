@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cache
+	xsi:schemaLocation="http://schema.pivotal.io/gemfire/cache http://schema.pivotal.io/gemfire/cache/cache-8.1.xsd"
+	lock-lease="120" lock-timeout="60" search-timeout="300" is-server="false"
+	copy-on-read="true" version="8.1" xmlns="http://schema.pivotal.io/gemfire/cache"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<disk-store name="pdx-disk-store">
+		<disk-dirs>
+			<disk-dir>data/pdx</disk-dir>
+		</disk-dirs>
+	</disk-store>
+
+	<pdx read-serialized="true" persistent="true" disk-store-name="pdx-disk-store">
+		<!--
+	   <pdx-serializer>
+	     <class-name>com.gemstone.gemfire.pdx.ReflectionBasedAutoSerializer</class-name>
+	     <parameter name="classes">
+	       <string>io.pivotal.pde.sample.*</string>
+	     </parameter>
+	   </pdx-serializer>
+	 -->
+	</pdx>
+
+	<region name="data-region">
+		<region-attributes refid="PARTITION_REDUNDANT"
+			ignore-jta="true" />
+	</region>
+
+	<region name="locking-region">
+		<region-attributes data-policy="replicate" scope="global">
+			<entry-time-to-live>
+				<expiration-attributes timeout="600" action="destroy" />
+			</entry-time-to-live>
+		</region-attributes>
+	</region>
+
+	<resource-manager critical-heap-percentage="90"
+		eviction-heap-percentage="70" />
+</cache>

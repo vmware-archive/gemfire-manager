@@ -5,3 +5,6 @@ cluster.json
 .project
 .pydevproject
 runtime.json
+datanode*/
+locator*/
+

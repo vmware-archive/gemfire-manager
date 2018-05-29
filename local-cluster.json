@@ -1,0 +1,67 @@
+{
+    "global-properties":{
+        "gemfire": "${GEMFIRE}",
+        "java-home" : "${JAVA_HOME}",
+        "locators" : "localhost[10000]",
+        "cluster-home" : ".",
+        "distributed-system-id": 1
+    },
+   "locator-properties" : {
+        "jmx-manager" : "true",
+        "log-level" : "config",
+        "statistic-sampling-enabled" : "true",
+        "log-file-size-limit" : "10",
+        "log-disk-space-limit" : "100",
+        "archive-file-size-limit" : "10",
+        "archive-disk-space-limit" : "100",
+        "enable-network-partition-detection" : "true",
+        "statistic-archive-file" : "locator.gfs",
+        "log-file" : "locator.log",
+        "jvm-options" : ["-Xmx256m","-Xms256m", "-XX:+UseConcMarkSweepGC", "-XX:+UseParNewGC"]
+    },
+   "datanode-properties" : {
+        "conserve-sockets" : false,
+        "log-level" : "config",
+        "membership-port-range" : "10901-10999",
+        "statistic-sampling-enabled" : "true",
+        "log-file-size-limit" : "10",
+        "log-disk-space-limit" : "100",
+        "archive-file-size-limit" : "10",
+        "archive-disk-space-limit" : "100",
+        "statistic-archive-file" : "server.gfs",
+        "log-file" : "server.log",
+        "enable-network-partition-detection" : "true",
+        "gemfire.ALLOW_PERSISTENT_TRANSACTIONS" : "true",
+        "jvm-options" : ["-Xmx128m","-Xms128m","-Xmn68m", "-XX:+UseConcMarkSweepGC", "-XX:+UseParNewGC", "-XX:CMSInitiatingOccupancyFraction=85"]
+    },
+    "hosts": {
+        "localhost" : {
+            "host-properties" :  {
+             },
+             "processes" : {
+                "locator1" : {
+                    "type" : "locator",
+                    "port" : 10000,
+                    "jmx-manager-port" : 10099,
+                    "http-service-port" : 10070,
+                    "jmx-manager-start" : "true"
+                 },
+                "datanode1" : {
+                    "type" : "datanode",
+                    "tcp-port" : 10001,
+                    "server-port" : 10100
+                 },
+                 "datanode2" : {
+                     "type" : "datanode",
+                     "tcp-port" : 10002,
+                     "server-port" : 10200
+                  },
+                  "datanode3" : {
+                      "type" : "datanode",
+                      "tcp-port" : 10003,
+                      "server-port" : 10300
+                    }
+             }
+        }
+    }
+}

@@ -10,7 +10,7 @@
         "security-username" : "gfpeer",
         "security-password" : "passw0rd",
         "security-disk-store-dir" : "data/security",
-        "classpath": "../../target/gemfire-dynamic-security-1.1.0.jar",
+        "classpath": "../../target/*",
         "distributed-system-id": 1
     },
    "locator-properties" : {

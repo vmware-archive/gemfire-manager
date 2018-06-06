@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<cache xmlns="http://geode.apache.org/schema/cache" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	copy-on-read="false" is-server="false" lock-lease="120" lock-timeout="60"
+	search-timeout="300" version="1.0"
+	xsi:schemaLocation="http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd">
+
+	<disk-store name="pdx-disk-store">
+		<disk-dirs>
+			<disk-dir>data/pdx</disk-dir>
+		</disk-dirs>
+	</disk-store>
+
+	<disk-store name="person1-disk-store">
+		<disk-dirs>
+			<disk-dir>data/person1</disk-dir>
+		</disk-dirs>
+	</disk-store>
+
+	<disk-store name="person2-disk-store">
+		<disk-dirs>
+			<disk-dir>data/person2</disk-dir>
+		</disk-dirs>
+	</disk-store>
+
+	<pdx disk-store-name="pdx-disk-store" persistent="true"
+		read-serialized="true" />
+
+	<region name="person1">
+		<region-attributes refid="PARTITION_REDUNDANT_PERSISTENT_OVERFLOW"
+			disk-store-name="person1-disk-store">
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk"></lru-heap-percentage>
+			</eviction-attributes>
+		</region-attributes>
+		<index name="zip_index_1" from-clause="/person1" expression="address.zip"/>
+	</region>
+
+	<region name="person2">
+		<region-attributes refid="PARTITION_REDUNDANT_PERSISTENT_OVERFLOW"
+			disk-store-name="person2-disk-store">
+			<partition-attributes>
+				<partition-resolver>
+					<class-name>io.pivotal.pde.sample.UnitTelemetryPartitionKey</class-name>
+				</partition-resolver>
+			</partition-attributes>
+			<eviction-attributes>
+				<lru-heap-percentage action="overflow-to-disk"></lru-heap-percentage>
+			</eviction-attributes>
+		</region-attributes>
+		<index name="zip_index_2" from-clause="/person2" expression="address.zip"/>
+	</region>
+</cache>

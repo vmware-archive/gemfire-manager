@@ -1,0 +1,19 @@
+server:
+  port: 18080
+endpoints:
+  info:
+    enabled: true
+  actuator:
+    enabled: true
+management:
+  security:
+    enabled: false
+        
+UTLoaderApp:
+  batchsize: 500
+  
+logging:
+  #file: /Users/spaladugu/logs/UnitTelemetryLoad.log
+  level:
+    ROOT: INFO
+    com.penske: DEBUG

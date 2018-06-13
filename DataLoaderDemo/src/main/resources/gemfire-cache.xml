@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:gfe="http://www.springframework.org/schema/gemfire"
+	xmlns:gfe-data="http://www.springframework.org/schema/data/gemfire"
+	xmlns="http://www.springframework.org/schema/beans" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/data/gemfire http://www.springframework.org/schema/data/gemfire/spring-data-gemfire.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd
+		http://www.springframework.org/schema/gemfire http://www.springframework.org/schema/gemfire/spring-gemfire.xsd">
+
+
+	<gfe:pool id="locatorPool" read-timeout="3600000" socket-buffer-size="1000000"
+		min-connections="1" max-connections="5" retry-attempts="0">
+		
+		<!-- AWS config -->
+<!-- 	<gfe:locator host="54.144.242.55" port="10000" />  -->
+		
+		<gfe:locator host="aue1lxagf001ptl" port="10334" />
+		<gfe:locator host="aue1lxagf002ptl" port="10334" />
+		 
+	</gfe:pool>
+
+	<gfe:client-region id="UnitTelemetry" cache-ref="gemfireCache"
+		pool-name="locatorPool" />
+	<gfe:client-region id="UTLatest" cache-ref="gemfireCache"
+					   pool-name="locatorPool" />
+	<gfe-data:repositories
+		base-package="com.penske.gemfire.unitelemetry.aggregator.repository" />
+
+	<bean id="pdxSerializer" class="com.gemstone.gemfire.pdx.ReflectionBasedAutoSerializer">
+		<constructor-arg>
+			<util:list value-type="java.lang.String">
+				<!--<value>io.pivotal.pde.penske.unittelemetry.aggregator.model.*</value>-->
+				<value>io.pivotal.*</value>
+			</util:list>
+		</constructor-arg>
+	</bean>
+
+	<util:properties id="gemfire-properties">
+		<prop key="cluster-ssl-enabled">true</prop>
+		<prop key="cluster-ssl-keystore">/etc/pki/tls/private/gemfire.keystore.jks</prop>
+		<prop key="cluster-ssl-keystore-password">tgjpNvC7XsGk3zJBxG4Tep9W</prop>
+		<prop key="cluster-ssl-keystore-type">jks</prop>
+		<prop key="cluster-ssl-truststore">/etc/pki/tls/certs/gemfire.truststore.jks</prop>
+		<prop key="cluster-ssl-truststore-password">rShWgDKr8vGFT7KjPyKTFeWp</prop>
+		<prop key="mcast-port">0</prop>
+		<prop key="security-peer-auth-init">templates.security.UserPasswordAuthInit.create</prop>
+		<prop key="security-peer-authenticator">templates.security.LdapUserAuthenticator.create</prop>
+		<prop key="security-ldap-server">aue1ntpdc001ptl.ptl.ad.penske.com</prop>
+		<prop key="security-ldap-basedn">OU=AWSServiceAccounts,OU=AWS,DC=ptl,DC=ad,DC=penske,DC=com</prop>
+		<prop key="security-client-auth-init">templates.security.UserPasswordAuthInit.create</prop>
+		<prop key="security-username">Gemfire Service</prop>
+		<prop key="security-password">Pa55word</prop>
+	</util:properties>
+
+	<gfe:client-cache id="gemfireCache" properties-ref="gemfire-properties"
+					  pdx-read-serialized="true" pool-name="locatorPool"
+					  pdx-serializer-ref="pdxSerializer" copy-on-read="false"
+	/>
+</beans>

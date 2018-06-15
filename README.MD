@@ -20,13 +20,13 @@ They have a purge job, which is a client program
 They noticed that there were some keys that would not be deleted. They could
 see the key using a query but could not remove it with a "removeAll".  
 
-I have been able to reproduce something very similar and I will add that
-the entry in question cannot even be deleted with a "remove" call from gfsh
-although a query shows it is there.
+I have been able to reproduce something very similar. This project creats an
+entry that cannot be deleted with a "remove" call from gfsh although a query
+shows it is there.
 
 # Walk Through
 
-Download submodules
+Download submodules.
 
 ```
 git submodule init
@@ -94,13 +94,59 @@ Now review the loader program in `people-loader`.
 - It has the partition resolver on its class path (see the partition-by-zip
   dependency).
 
-Run it with no parameters (I ran from within the IDE)
+Run the `peopleloader.py` script with no parameters.
 
-Review the `ClearByZip` Function, then deploy it and run it:
+```
+cd peopleloader
+python peopleloader.py
+cd ..
+```
+
+Review the `FindBad` Function, then deploy it and run it:
 
 ```
 $GEMFIRE/bin/gfsh
 gfsh>connect --locator=localhost[10000]
 gfsh>deploy --jar=people-loader/target/people-loader-1.0-SNAPSHOT.jar
-gfsh>execute function --id=ClearByZip --region=person2 --arguments='00001'
+gfsh>execute function --id=FindBad --region=person2
+```
+
+You should see something like this:
+
+```
+Cluster-1 gfsh>execute function --id=FindBad --region=person2
+Execution summary
+
+            Member ID/Name              | Function Execution Result
+--------------------------------------- | -------------------------------------------
+192.168.1.102(datanode3:4491)<v1>:10939 | missing key: 00004|00001094
+done
+done
+done
+```
+
+Now query that key in gfsh.
+
+```
+Cluster-1 gfsh>query --query="select value from /person2.entries where key='00004|00001094'"
+
+Result     : true
+startCount : 0
+endCount   : 20
+Rows       : 1
+
+lastName | firstName |        phone         |                         address                         | gender | age | id
+-------- | --------- | -------------------- | ------------------------------------------------------- | ------ | --- | ----
+Grant    | Trenton   | (013) 584-5914 x2853 | class com.gemstone.gemfire.pdx.internal.PdxInstanceImpl | F      | 21  | 1094
+
+```
+
+Note that you can't remove this entry!
+
+```
+Cluster-1 gfsh>remove --key=00004|00001094 --region=person2
+Result    : false
+Message   : Key is not present in the region
+Key Class : java.lang.String
+Key       : 00004|00001094
 ```

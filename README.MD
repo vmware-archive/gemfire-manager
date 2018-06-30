@@ -245,21 +245,41 @@ gf.py script takes care of the `gfsh connect` command for you.  You can use this
 It is recommended to configure _read-serialized=true_ for GemFire clusters where
 there will be no server side code.  With _read-serialized=true_ it is not
 necessary to put domain jars on the server class path.  However, this is not
-the default.  This setting should be configured as part of cluster
-initialization and a cluster restart is required after it is changed.  A
-convenience script to do this is provided with the framework.  The parameters
-to the script are the location of the cluster definition file, and the
-location, on the remote server, where the pdx disk store should be created.
-For this example, initialize pdx using the following command:
+the default.  __This setting should be configured as part of cluster
+initialization and a cluster restart is required after it is changed.__  
+For this example, initialize pdx using the following commands.
 
 ```
-python configpdx.py vagrant/cluster.json /home/vagrant/gemfire_cluster/data
-```
+export GEMFIRE=/usr/local/Cellar/gemfire/9.3.0/libexec  # location of your local GemFire
+$GEMFIRE/bin/gfsh 
 
-Note that the cluster is now stopped so start it again before continuing.
+# gfsh session below
+gfsh> connect --locator=10.10.10.101[10000]
+Connecting to Locator at [host=10.10.10.101, port=10000] ..
+Connecting to Manager at [host=10.10.10.101, port=11099] ..
+Successfully connected to: [host=10.10.10.101, port=11099]
 
-```
-python gf.py vagrant/cluster.json start
+Cluster-1 gfsh>create disk-store --name=pdx-disk-store --dir=data/pdx
+ Member   | Status
+--------- | -------
+datanode1 | Success
+datanode2 | Success
+
+Cluster-1 gfsh>configure pdx --disk-store=pdx-disk-store --read-serialized=true
+The command would only take effect on new data members joining the distributed system. It won't affect the existing data members
+persistent = true
+disk-store = pdx-disk-store
+read-serialized = true
+ignore-unread-fields = false
+
+Cluster-1 gfsh>shutdown
+As a lot of data in memory will be lost, including possibly events in queues, do you really want to shutdown the entire distributed system? (Y/n): Y
+Shutdown is triggered
+
+Cluster-1 gfsh>quit 
+
+# now the cluster is stopped so start it again
+python gf.py vagrant/cluster.json start 
 ```
 
 Now we will create a region on the remote cluster and load some data using the
@@ -268,7 +288,7 @@ _people-loader_ sample application.
 ```
 python gf.py vagrant/cluster.json gfsh create disk-store --name=person-disk-store --dir=/home/vagrant/gemfire_cluster/data/person
 python gf.py vagrant/cluster.json gfsh create region --name=Person --disk-store=person-disk-store --type=PARTITION_REDUNDANT_PERSISTENT
-python vagrant/peopleloader.py --locator=10.10.10.101[10000] --count=100
+python vagrant/peopleloader.py --locator=10.10.10.101[10000] --count=10000
 ```
 
 Review _vagrant/peopleloader.py_ to see how SSL is configured for a client.  
@@ -276,9 +296,9 @@ You can see that the following options are set by the script:
 
 ```
 -Dgemfire.ssl-keystore=vagrant/trusted.keystore
--Dgemfire.ssl-keystore-password=passw0rd
+-Dgemfire.ssl-keystore-password=password
 -Dgemfire.ssl-truststore=vagrant/trusted.keystore
--Dgemfire.ssl-truststore-password=passw0rd
+-Dgemfire.ssl-truststore-password=password
 -Dgemfire.ssl-default-alias=self
 -Dgemfire.ssl-enabled-components=server
 -Djavax.net.ssl.keyStoreType=JKS
@@ -324,37 +344,35 @@ serialized=true and restart the cluster. However this time you can use gfsh
 directly.
 
 ```
-gfsh -e "connect --locator=localhost[10000]" -e "create disk-store --dir=data/pdx --name=pdx-disk-store" -e "configure pdx --disk-store=pdx-disk-store --read-serialized=true"
-gfsh -e "connect --locator=localhost[10000]" -e "shutdown --include-locators=true"
+$GEMFIRE/bin/gfsh -e "connect --locator=localhost[10000]" -e "create disk-store --dir=data/pdx --name=pdx-disk-store" -e "configure pdx --disk-store=pdx-disk-store --read-serialized=true"
+$GEMFIRE/bin/gfsh -e "connect --locator=localhost[10000]" -e "shutdown"
 python cluster.py --cluster-def=local/cluster.json start
-
 ```
 
 Now we can create a persistent region.
 
 ```
-python cluster.py --cluster-def=local/cluster.json start
-gfsh -e "connect --locator=localhost[10000]" -e "create disk-store --dir=data/person --name=person-disk-store"
-gfsh -e "connect --locator=localhost[10000]" -e "create region --name=Person --disk-store=person-disk-store --type=PARTITION_REDUNDANT_PERSISTENT"
+$GEMFIRE/bin/gfsh -e "connect --locator=localhost[10000]" -e "create disk-store --dir=data/person --name=person-disk-store"
+$GEMFIRE/bin/gfsh -e "connect --locator=localhost[10000]" -e "create region --name=Person --disk-store=person-disk-store --type=PARTITION_REDUNDANT_PERSISTENT"
 ```
 
 ... and load some data (note there is a different _peopleloader.py_ script
-because SSL is not configured in the local example.
+because SSL is not configured in the local example).
 
 ```
-python local/peopleloader.py --locator=localhost[10000] --count=100
+python people-loader/peopleloader.py --locator=localhost[10000] --count=10000
 ```
 
 ... and retrieve the data using a query
 
 ```
-gfsh -e "connect --locator=localhost[10000]" -e "query --query='select * from /Person'"
+$GEMFIRE/bin/gfsh -e "connect --locator=localhost[10000]" -e "query --query='select * from /Person'"
 ```
 
 ... and finally stop the cluster
 
 ```
-gfsh -e "connect --locator=localhost[10000]" -e "shutdown --include-locators=true"
+$GEMFIRE/bin/gfsh -e "connect --locator=localhost[10000]" -e "shutdown --include-locators=true"
 ```
 
 # The Cluster Configuration File

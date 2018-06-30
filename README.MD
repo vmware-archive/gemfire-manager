@@ -130,9 +130,6 @@ the following:
 * A working Apache Maven install
 * Python 2.6+
 
-# How it works
-
-gemfire-manager centralizes all configuration in one
 
 # Walk Through
 

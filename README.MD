@@ -174,11 +174,11 @@ case is _vagrant_
 * GemFire is unzipped to a location readable by the run as user.
 * Directories are set up for the cluster working directory, logs, data stores (if any) and backups, all writeable by the run as user.
 * If SSL will be used, the keystore and _security.properties_ file
-(which contains passwords) are readable by the runas user but otherwise locked down.
+(which contains passwords) are readable by the run as user but otherwise locked down.
 
 _This represents a typical starting point for installing a GemFire cluster on-premise and the same requirements would apply._
 
-Now have a look at _cluster.json_ in the _vagrant_ folder.  This very important file contains all of the settings for running a gemfire cluster.  Note the hierarchical structure that minimizes repeated configuration. Settings that are the same for all servers are specified only once at the global level while settings that are specific to each machine are in a machine specific section.  Below are a few important points about this file. See _The Cluster Configuration File_ below for more details.
+Now have a look at _cluster.json_ in the _vagrant_ folder.  Note that settings that are the same for all servers are specified only once at the global level while settings that are specific to each machine are in a machine specific section.  Below are a few important points about this file. See _The Cluster Configuration File_ below for more details.
 
 * Each host must have a section and the name of the section must
 match the value returned by `hostname` on that machine.
@@ -297,7 +297,7 @@ To stop the whole cluster:
 python gf.py vagrant/cluster.json gfsh shutdown --include-locators=true
 ```
 
-# Local Cluster Walk Through#
+# Local Cluster Walk Through
 
 This framework can also be used to quickly set up a local cluster with whatever
 configuration you desire.  It uses the same _cluster.json_ cluster configuration
@@ -307,16 +307,16 @@ clusters.  _gf.py_ always runs commands via ssh whereas _cluster.py_ always acts
 Define the GEMFIRE and JAVA_HOME environment variables to point to your
 gemfire installation and an appropriate jdk.
 
-Examine the cluster configuration file: _local/cluster.json_
+First, __copy local-cluster.json to cluster.json__
 
-If you wish to change the location used by the cluster for local storage,
-you may do so by modifying the _cluster-home_ setting in _cluster.json_.  The
-default is _/tmp/gemfire/sample_.  
+Now examine _cluster.json_ and make any changes you might wish to make.  By 
+default, the local cluster will be created in the same directory as this 
+project.
 
-_Either way, please make sure that the cluster home directory exists!_
+Now start the cluster.
 
 ```
-python cluster.py --cluster-def=local/cluster.json start
+python cluster.py start
 ```
 
 Now, as with the remote cluster, create a disk store and configure pdx read
@@ -357,7 +357,7 @@ gfsh -e "connect --locator=localhost[10000]" -e "query --query='select * from /P
 gfsh -e "connect --locator=localhost[10000]" -e "shutdown --include-locators=true"
 ```
 
-# The Cluster Configuration File#
+# The Cluster Configuration File
 
 Two sample cluster configuration filea are shown below. One is for a local cluster
 and the other is for a remote cluster.  Note that the file is hierarchical in
@@ -380,7 +380,8 @@ below.
     and one that applies to locators (_locator-properties_).
 4. Lastly, look in _global-properties_
 
-#### Additional notes about the cluster configuration file ####
+#### Additional notes about the cluster configuration file 
+
 * place holders of the form ${ENV_VAR} can be used to pull in values from the
 environment
 * the __hosts__ section is a dictionary of each host in the cluster.  The key of
@@ -402,7 +403,8 @@ the _jvm-options_ setting, wich is a list.
 * for remote clusters, each host has an "ssh" object which specifies all of
 the information needed to connect to that host.
 
-#### Local Cluster Configuration File ####
+#### Local Cluster Configuration File 
+
 ```json
 {
     "global-properties":{
@@ -448,7 +450,8 @@ the information needed to connect to that host.
 
 ```
 
-####Remote Cluster Configuration File####
+####Remote Cluster Configuration File 
+
 ```json
 {
     "global-properties":{

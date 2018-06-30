@@ -174,11 +174,11 @@ case is _vagrant_
 * GemFire is unzipped to a location readable by the run as user.
 * Directories are set up for the cluster working directory, logs, data stores (if any) and backups, all writeable by the run as user.
 * If SSL will be used, the keystore and _security.properties_ file
-(which contains passwords) are readable by the runas user but otherwise locked down.
+(which contains passwords) are readable by the run as user but otherwise locked down.
 
 _This represents a typical starting point for installing a GemFire cluster on-premise and the same requirements would apply._
 
-Now have a look at _cluster.json_ in the _vagrant_ folder.  This very important file contains all of the settings for running a gemfire cluster.  Note the hierarchical structure that minimizes repeated configuration. Settings that are the same for all servers are specified only once at the global level while settings that are specific to each machine are in a machine specific section.  Below are a few important points about this file. See _The Cluster Configuration File_ below for more details.
+Now have a look at _cluster.json_ in the _vagrant_ folder.  Note that settings that are the same for all servers are specified only once at the global level while settings that are specific to each machine are in a machine specific section.  Below are a few important points about this file. See _The Cluster Configuration File_ below for more details.
 
 * Each host must have a section and the name of the section must
 match the value returned by `hostname` on that machine.

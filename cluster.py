@@ -66,9 +66,9 @@ def killDataNode(processName):
         pid = int(f.read())
 
     if platform.system == 'Windows':
-        subprocess.call(['Taskkill', '/PID' ,pid, '/F'])
+        subprocess.call(['Taskkill', '/PID' ,str(pid), '/F'])
     else:
-        subprocess.call(['kill','-9',pid])
+        subprocess.call(['kill','-9',str(pid)])
 
     os.remove(pidfile)
 
@@ -171,7 +171,8 @@ def stopServer(processName):
 
 
     except subprocess.CalledProcessError as x:
-        sys.exit(x.message)
+        print('WARNING: stop command failed. Will kill data node.')
+        killDataNode(processName)
 
 
 def statusLocator(processName):
